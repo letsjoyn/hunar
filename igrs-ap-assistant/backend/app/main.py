@@ -12,6 +12,7 @@ from fastapi.staticfiles import StaticFiles
 
 from backend.app.db.models import create_tables, get_engine, get_session_factory
 from backend.app.db.seed import seed_all
+from backend.app.db.seed_prohibited import seed_prohibited_properties
 from backend.app.core.config import (
     APP_ENV,
     CORS_ALLOWED_ORIGINS,
@@ -40,11 +41,17 @@ async def lifespan(app: FastAPI):
     # Seed data on startup if tables are empty
     session = SessionFactory()
     try:
-        from backend.app.db.models import DutyRate
-        count = session.query(DutyRate).count()
-        if count == 0 and APP_ENV != "production":
-            seed_all(session, SEEDS_DIR)
-        # Do not seed illustrative prohibited-property examples into the app DB.
+        from backend.app.db.models import DutyRate, ProhibitedProperty, StructureRate, UserCharge
+        from backend.app.db.seed import load_duty_rates, load_structure_rates, load_user_charges
+        if APP_ENV != "production":
+            if session.query(DutyRate).count() == 0:
+                load_duty_rates(session, SEEDS_DIR)
+            if session.query(UserCharge).count() == 0:
+                load_user_charges(session, SEEDS_DIR)
+            if session.query(StructureRate).count() == 0:
+                load_structure_rates(session, SEEDS_DIR)
+            if session.query(ProhibitedProperty).count() == 0:
+                seed_prohibited_properties(session)
     finally:
         session.close()
 

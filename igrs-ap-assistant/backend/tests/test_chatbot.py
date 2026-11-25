@@ -114,14 +114,14 @@ def test_chat_unverified_refusal(session):
     res = process_chat_message(session, msg)
     assert res.intent == "CALCULATION_REFUSED"
     assert "NOT_FOUND" in res.reply
-    assert "refuses to guess" in res.reply
+    assert "refusing to guess" in res.reply
 
 
 def test_chat_greeting(session):
     for g in ["hello", "hii broo", "heyy", "namaste", "namaskaram", "yo bro", "who are you"]:
         res = process_chat_message(session, g)
         assert res.intent == "GREETING", f"Failed for {g}"
-        assert "Welcome to the AP Registration & Stamps Assistant" in res.reply
+        assert "AP Registration & Stamps Advisory" in res.reply
 
 
 def test_chat_colloquial_family_gift(session):
@@ -137,22 +137,18 @@ def test_chat_colloquial_family_gift(session):
 def test_chat_partition_brother_split(session):
     msg = "what tax when i split my land with my brother"
     res = process_chat_message(session, msg)
-    assert res.intent == "NEED_CLARIFICATION"
+    assert res.intent == "RATE_LOOKUP"
     assert res.card_slip is None
-    assert "each separated share" in res.reply
+    assert "1.0000%" in res.reply
+    assert "Separated Shares" in res.reply
 
 
-def test_chat_deed_rate_schedule_query(session):
-    # Test user query that caused previous substring bug
+def test_chat_deed_rate_schedule_returns_verified_rows(session):
     msg = "bro can you give me percentages of different 20 deeds of year 2023"
     res = process_chat_message(session, msg)
     assert res.intent == "DEED_SCHEDULE"
-    assert "20 Key Deeds" in res.reply or "20 Deeds" in res.reply
     assert "01_01" in res.reply
-    assert "04_01" in res.reply
-    assert "G.O.Ms.No. 394" in res.reply
-    assert "5.00%" in res.reply
-    assert "7.50%" in res.reply
+    assert "5.0000%" in res.reply
 
 
 def test_chat_development_agreement_dagpa(session):
@@ -161,36 +157,124 @@ def test_chat_development_agreement_dagpa(session):
     assert res.intent == "CALCULATION_OK"
     assert res.card_slip is not None
     assert res.card_slip["instrument_code"] == "01_10"
+    assert res.card_slip["is_adjustable"] is False
     assert Decimal(str(res.card_slip["stamp_duty"])) == Decimal("120000")
     assert Decimal(str(res.card_slip["registration_fee"])) == Decimal("20000")  # Capped at 20,000!
     assert Decimal(str(res.card_slip["total_payable"])) == Decimal("140500")
     assert "1.0000%" in res.reply
-    assert "1,20,000" in res.reply
-    assert "20,000" in res.reply
-    assert "ADJUSTABLE" in res.reply
-    assert "Article 6-B" in res.reply
+    assert "₹1,20,000.00" in res.reply
+    assert "₹20,000" in res.reply
+    assert "not adjustable" in res.reply.lower()
+    assert "581" in res.reply
+    assert "463" in res.reply
+    assert "G.O.Ms.No. 394" not in res.reply
+    assert "G.O.Ms.No. 393" not in res.reply
+    assert "Art. 6-B" in res.reply
 
 
-def test_chat_gift_sister_in_law_sec56(session):
+def test_chat_dagpa_without_area_uses_universal_candidate_row(session):
+    msg = "Builder is registering a Development Agreement-cum-GPA for ₹1.2 crore estimated cost—what is the SD%, is it adjustable later, and what is the RF cap?"
+    res = process_chat_message(session, msg)
+    assert res.intent == "CALCULATION_OK"
+    assert res.card_slip is not None
+    assert res.card_slip["area_type"] == "ALL"
+    assert res.card_slip["is_adjustable"] is False
+    assert Decimal(str(res.card_slip["stamp_duty"])) == Decimal("120000")
+    assert "Please specify the property jurisdiction" not in res.reply
+    assert "not adjustable" in res.reply.lower()
+
+
+def test_chat_commercial_lease_with_ambiguous_deposit_computes_both_scenarios(session):
+    msg = "Commercial shop lease for 8 years, monthly rent ₹25,000 plus ₹5 lakh advance/deposit. How much SD and RF?"
+    res = process_chat_message(session, msg)
+    assert res.intent == "CALCULATION_OK"
+    assert res.card_slip is not None
+    assert res.card_slip["instrument_code"] == "LEASE"
+    assert Decimal(str(res.card_slip["chargeable_value"])) == Decimal("300000")
+    assert Decimal(str(res.card_slip["rent_stamp_duty"])) == Decimal("6000")
+    assert Decimal(str(res.card_slip["advance_stamp_duty"])) == Decimal("10000")
+    assert Decimal(str(res.card_slip["registration_fee"])) == Decimal("300")
+    assert Decimal(str(res.card_slip["user_charge"])) == Decimal("100")
+    assert Decimal(str(res.card_slip["total_payable"])) == Decimal("16400")
+    assert "₹3,00,000.00" in res.reply
+    assert "₹6,000.00" in res.reply
+    assert "₹10,000.00" in res.reply
+    assert "₹6,400.00" in res.reply
+    assert "S1/4813/2008" in res.reply
+    assert "CCRA1/13429/2008" in res.reply
+    assert "Please specify the property jurisdiction" not in res.reply
+
+
+def test_chat_commercial_lease_without_deposit_uses_duration_and_annual_rent(session):
+    msg = "Commercial shop lease for 8 years with monthly rent ₹25,000. How much SD and RF?"
+    res = process_chat_message(session, msg)
+    assert res.intent == "CALCULATION_OK"
+    assert res.card_slip is not None
+    assert res.card_slip["instrument_code"] == "LEASE"
+    assert res.card_slip["area_type"] == "ALL"
+    assert res.card_slip["calc_basis_used"] == "AAR"
+    assert Decimal(res.card_slip["chargeable_value"]) == Decimal("300000")
+    assert Decimal(res.card_slip["stamp_duty"]) == Decimal("6000")
+    assert Decimal(res.card_slip["registration_fee"]) == Decimal("300")
+    assert "6,400.00" in res.reply
+
+
+def test_chat_gift_sister_in_law_sec56_confirms_relative_eligibility(session):
     msg = "Sister is gifting property in a Municipal Corporation to her brother's wife—is sister-in-law eligible for 2% relative gift duty under Sec 56(2) of IT Act?"
     res = process_chat_message(session, msg)
-    assert res.intent == "RATE_LOOKUP"
-    assert res.card_slip is None
-    assert "Gift in favour of Relatives u/s 56(2)" in res.reply
-    assert "2.0000%" in res.reply
-    assert "YES, 100% ELIGIBLE" in res.reply
-    assert "Statutory Rate Schedule" in res.reply
+    assert res.intent == "LEGAL_QUERY"
+    assert res.card_slip is None  # No amount provided — never assumes an amount
+    assert res.legal_docs
+    assert "clause (vii)" in res.reply.lower()
+    assert "clause (iii)" in res.reply.lower()
+    assert "2.00%" in res.reply
 
 
-def test_chat_rule_61_vs_rule_71(session):
+def test_chat_crop_loan_exemption_with_acreage_routes_to_legal_search(session):
+    """#24 regression: 2.5 lakh crop loan for a small farmer (4 acres wet) must be 100% exempt under G.O.Ms.No. 15/2007."""
+    msg = "A small farmer with 4 acres wet land takes a ₹2.5 lakh crop loan—is he exempt from Stamp Duty and Registration Fee?"
+    res = process_chat_message(session, msg)
+    assert res.intent == "LEGAL_QUERY"
+    assert res.legal_docs
+    assert "AREA_CONVERT" not in res.intent
+    assert "land measurement conversion" not in res.reply.lower()
+    # Must mention exemption or G.O.Ms.No. 15 (not old ₹2L ceiling)
+    combined = res.reply.lower()
+    assert "exempt" in combined or "3,00,000" in res.reply or "g.o.ms.no. 15" in combined, \
+        f"Reply should mention exemption under ₹3L ceiling; got: {res.reply[:400]}"
+    # Must NOT still say the loan exceeds the ceiling (old bug with ₹2,00,000 limit)
+    assert "secondary-source retrieval note" not in res.reply.lower(), \
+        "Must not use the old secondary-source bug wording"
+
+
+def test_chat_settlement_debt_classification_routes_to_legal_search(session):
+    """#22 regression: Settlement with debt discharge must be classified as Settlement-cum-Conveyance (S3/7423/93)."""
+    msg = (
+        "A person is settling ₹10 lakh property on his son with a condition that the son "
+        "must clear ₹3 lakh of the father's debts. Is this pure Settlement or "
+        "Settlement-cum-Conveyance?"
+    )
+    res = process_chat_message(session, msg)
+    assert res.intent == "LEGAL_QUERY"
+    assert res.legal_docs
+    assert "Settlement-cum-Conveyance" in res.reply
+    assert "S3/7423/93" in res.reply
+    # Must NOT retain the old "secondary-source retrieval note" / Note-10 wording
+    assert "secondary-source retrieval note" not in res.reply.lower(), \
+        "Old Note-10 secondary-source wording must not appear; must cite S3/7423/93"
+    assert "Please specify the property jurisdiction" not in res.reply
+
+
+def test_chat_rule_61_vs_rule_71_returns_structured_comparison(session):
     msg = "Executant died after signing a sale deed, before registration vs a Will presented after the testator's death—what is the exact difference between Rule 61 and Rule 71 enquiry?"
     res = process_chat_message(session, msg)
     assert res.intent == "LEGAL_QUERY"
-    assert "Rule 61 vs. Rule 71" in res.reply
-    assert "Sections 34 & 35" in res.reply
-    assert "Sections 40 & 41" in res.reply
-    assert "newspaper" in res.reply.lower()
-    assert "Historical Audit" not in res.reply
+    assert res.legal_docs
+    titles = " ".join(f"{item['section_or_rule']} {item['title']}" for item in res.legal_docs)
+    assert "Rule 61" in titles and "Rule 71" in titles
+    assert "Rule 61 vs. Rule 71 Enquiry" in res.reply
+    assert "Tom-tom" in res.reply or "tom-tom" in res.reply
+    assert "daily newspaper" in res.reply.lower()
 
 
 

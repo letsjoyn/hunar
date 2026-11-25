@@ -24,6 +24,7 @@ from sqlalchemy.orm import Session
 
 from backend.app.core.config import APP_ENV, IS_PRODUCTION, PRODUCTION_RATE_DATA_APPROVED
 from backend.app.db.models import DutyRate, UserCharge
+from backend.app.engine.formatting import format_inr
 
 
 @dataclass
@@ -44,11 +45,23 @@ class DutyBreakdown:
     user_charge: Decimal = Decimal("0")
     user_charge_detail: str = ""
     total_payable: Decimal = Decimal("0")
-    is_adjustable: bool = False
+    adjustable_sd_pct: Decimal = Decimal("0")
+    adjustable_stamp_duty: Decimal = Decimal("0")
+    non_adjustable_stamp_duty: Decimal = Decimal("0")
+    lease_advance_amount: Decimal = Decimal("0")
+    rent_stamp_duty: Decimal = Decimal("0")
+    advance_stamp_duty: Decimal = Decimal("0")
     is_historical: bool = False
+    sd_authority: str = ""
+    td_authority: str = ""
+    rf_authority: str = ""
     citations: list[str] = field(default_factory=list)
     message: str = ""
     warnings: list[str] = field(default_factory=list)
+
+    @property
+    def is_adjustable(self) -> bool:
+        return (self.adjustable_sd_pct or Decimal("0")) > Decimal("0")
 
 
 def _round(val: Decimal) -> Decimal:
@@ -85,19 +98,21 @@ CODE_ALIASES: dict[str, list[str]] = {
     "02_02": ["02_02", "MORTGAGE_WITHOUT_POSSESSION"],
     "DOTD": ["DOTD", "02_08", "DEPOSIT_OF_TITLE_DEEDS"],
     "02_08": ["02_08", "DOTD", "DEPOSIT_OF_TITLE_DEEDS"],
-    "SETTLEMENT_FAMILY": ["SETTLEMENT_FAMILY", "03_01"],
-    "03_01": ["03_01", "SETTLEMENT_FAMILY"],
-    "SETTLEMENT_OTHER": ["SETTLEMENT_OTHER", "03_02", "SETTLEMENT_OTHERS"],
-    "03_02": ["03_02", "SETTLEMENT_OTHER", "SETTLEMENT_OTHERS"],
+    "GIFT": ["GIFT", "03_01", "03_07", "GIFT_OTHER", "GIFT_OTHERS"],
+    "03_01": ["03_01", "GIFT", "GIFT_OTHER", "GIFT_OTHERS"],
+    "SETTLEMENT_FAMILY": ["SETTLEMENT_FAMILY", "03_02"],
+    "03_02": ["03_02", "SETTLEMENT_FAMILY"],
+    "SETTLEMENT_OTHER": ["SETTLEMENT_OTHER", "03_03", "SETTLEMENT_OTHERS"],
+    "03_03": ["03_03", "SETTLEMENT_OTHER", "SETTLEMENT_OTHERS"],
     "GIFT_RELATIVE": ["GIFT_RELATIVE", "03_06", "03_05", "GIFT_FAMILY"],
     "03_06": ["03_06", "GIFT_RELATIVE", "GIFT_FAMILY"],
     "03_05": ["03_05", "GIFT_RELATIVE"],
-    "GIFT_OTHER": ["GIFT_OTHER", "03_07", "GIFT_OTHERS"],
+    "GIFT_OTHER": ["GIFT_OTHER", "03_07", "03_01", "GIFT_OTHERS"],
     "03_07": ["03_07", "GIFT_OTHER", "GIFT_OTHERS"],
-    "PARTITION_FAMILY": ["PARTITION_FAMILY", "04_01"],
-    "04_01": ["04_01", "PARTITION_FAMILY"],
-    "PARTITION_OTHER": ["PARTITION_OTHER", "04_02", "PARTITION_OTHERS"],
-    "04_02": ["04_02", "PARTITION_OTHER", "PARTITION_OTHERS"],
+    "PARTITION_FAMILY": ["PARTITION_FAMILY", "04_02"],
+    "04_02": ["04_02", "PARTITION_FAMILY"],
+    "PARTITION_OTHER": ["PARTITION_OTHER", "04_01", "PARTITION_OTHERS"],
+    "04_01": ["04_01", "PARTITION_OTHER", "PARTITION_OTHERS"],
     "RELEASE_FAMILY": ["RELEASE_FAMILY", "05_01"],
     "05_01": ["05_01", "RELEASE_FAMILY"],
     "RELEASE_WITHOUT_CONSID": ["RELEASE_WITHOUT_CONSID", "05_02"],
@@ -134,9 +149,9 @@ def _find_rate(
     if IS_PRODUCTION and not PRODUCTION_RATE_DATA_APPROVED:
         return None
 
-    # The local reviewed-source corpus starts in July 2005. Older rows from
-    # legacy/generated databases are not accepted until their sources are audited.
-    if execution_date < date(2005, 7, 1):
+    # Verified historical corpus starts from 01.04.1999 (Art. 47-A differential regime
+    # & Act 4/1999 agreement rules). Earlier unverified dates must fail closed.
+    if execution_date < date(1999, 4, 1):
         return None
 
     codes_to_try = CODE_ALIASES.get(instrument_code, [instrument_code])
@@ -170,11 +185,13 @@ def _find_rate(
 
     # Normalize area types
     if area_type in ("MUNICIPAL_CORP", "CORPORATION", "CORP"):
-        areas_to_try = [area_type, "MUNICIPAL_CORP", "CORPORATION", "ALL"]
+        areas_to_try = ["MUNICIPAL_CORP", "CORPORATION", "ALL"]
     elif area_type in ("SPECIAL_SELECTION_MUNICIPALITY", "SELECTION_MUNICIPALITY"):
         areas_to_try = [area_type, "SPECIAL_SELECTION_MUNICIPALITY", "OTHER_MUNICIPALITY", "ALL"]
-    elif area_type in ("GRAM_PANCHAYAT", "PANCHAYAT", "RURAL"):
+    elif area_type in ("GRAM_PANCHAYAT", "MAJOR_GRAM_PANCHAYAT", "MINOR_GRAM_PANCHAYAT", "PANCHAYAT", "RURAL"):
         areas_to_try = [area_type, "GRAM_PANCHAYAT", "ALL"]
+    elif area_type == "CANTONMENT":
+        areas_to_try = ["CANTONMENT", "OTHER_MUNICIPALITY", "ALL"]
     elif area_type == "ALL":
         areas_to_try = ["ALL", "MUNICIPAL_CORP", "GRAM_PANCHAYAT"]
     else:
@@ -230,11 +247,31 @@ def _get_user_charge(
     book34_items = {
         "LEASE", "LEASE_PERPETUAL",
         "MORTGAGE_WITH_POSSESSION", "MORTGAGE_WITHOUT_POSSESSION",
-        "DOTD", "FURTHER_CHARGE_WITH_POSSESSION", "FURTHER_CHARGE_WITHOUT_POSSESSION",
+        "DOTD", "DEPOSIT_OF_TITLE_DEEDS",
+        "FURTHER_CHARGE_WITH_POSSESSION", "FURTHER_CHARGE_WITHOUT_POSSESSION",
     }
+    book1_prefixes = ("01_", "03_", "04_", "05_", "06_", "09_")
+    book34_prefixes = (
+        "02_", "07_", "08_", "20_", "21_",
+        "30_", "31_", "32_", "33_", "34_", "35_", "36_", "37_", "38_", "39_",
+        "40_", "42_", "43_", "44_",
+    )
 
     aliases = CODE_ALIASES.get(instrument_code, [instrument_code])
-    if any(a in book1_majors for a in aliases) or instrument_code in book1_majors:
+    is_book1_major = (
+        any(a in book1_majors for a in aliases)
+        or instrument_code in book1_majors
+        or instrument_code.startswith(book1_prefixes)
+        or instrument_code == "41_03"
+    )
+    is_book34 = (
+        any(a in book34_items for a in aliases)
+        or instrument_code in book34_items
+        or instrument_code.startswith(book34_prefixes)
+        or instrument_code in {"41_01", "41_02", "41_04", "41_05"}
+    )
+
+    if is_book1_major:
         # Post-2023: flat Rs.500
         # Pre-2023: Rs.50 (<=50k) or Rs.95 (>50k)
         if execution_date >= date(2023, 4, 25):
@@ -263,7 +300,7 @@ def _get_user_charge(
         detail += f" [{citation}]"
         return total, detail
 
-    elif instrument_code in book34_items:
+    elif is_book34:
         if execution_date >= date(2023, 4, 25):
             base_charge = Decimal("100")
             citation = "G.O.Ms.No. 192 dt. 25.04.2023"
@@ -322,13 +359,18 @@ def calculate_deed_duty(
         return result
 
     result.status = "OK"
-    if APP_ENV != "production" or rate.verification_status != "VERIFIED":
+    if rate.verification_status != "VERIFIED":
         result.warnings.append(
             "DEMO ONLY: rate data is not independently verified against the cited official source. "
             "Do not use this result for an official transaction, collection, or audit decision."
         )
     result.citations.append(rate.authority_citation)
-    result.is_adjustable = rate.is_adjustable
+    result.sd_authority = getattr(rate, "sd_authority", None) or rate.authority_citation
+    result.td_authority = getattr(rate, "td_authority", None) or (
+        "AP Municipalities / GP Transfer Duty Surcharge" if (rate.transfer_duty_pct or Decimal("0")) > 0 else "Exempt (Not Applicable)"
+    )
+    result.rf_authority = getattr(rate, "rf_authority", None) or rate.authority_citation
+    result.adjustable_sd_pct = Decimal(str(getattr(rate, "adjustable_sd_pct", None) or 0))
     result.is_historical = (rate.effective_to is not None)
 
     # --- Determine chargeable value based on calc_basis ---
@@ -376,10 +418,18 @@ def calculate_deed_duty(
         result.stamp_duty = sd_amount
         result.stamp_duty_rate = f"{sd_pct}%"
         if rate.stamp_duty_max and sd_amount == rate.stamp_duty_max:
-            result.stamp_duty_rate += f" (capped at Rs.{rate.stamp_duty_max})"
+            result.stamp_duty_rate += f" (capped at {format_inr(rate.stamp_duty_max)})"
     elif rate.stamp_duty_type == "FIXED":
         result.stamp_duty = _round(rate.stamp_duty_value)
-        result.stamp_duty_rate = f"Fixed Rs.{rate.stamp_duty_value}"
+        result.stamp_duty_rate = f"Fixed {format_inr(rate.stamp_duty_value)}"
+
+    if result.adjustable_sd_pct > 0 and rate.stamp_duty_type == "PERCENT" and rate.stamp_duty_value > 0:
+        adj_pct = min(result.adjustable_sd_pct, rate.stamp_duty_value)
+        result.adjustable_stamp_duty = _round(chargeable * adj_pct / Decimal("100"))
+        result.non_adjustable_stamp_duty = max(Decimal("0"), result.stamp_duty - result.adjustable_stamp_duty)
+    else:
+        result.adjustable_stamp_duty = Decimal("0")
+        result.non_adjustable_stamp_duty = result.stamp_duty
 
     # --- Transfer Duty ---
     td_pct = rate.transfer_duty_pct or Decimal("0")
@@ -394,17 +444,25 @@ def calculate_deed_duty(
     # --- Registration Fee ---
     if rate.reg_fee_type == "PERCENT":
         rf_pct = rate.reg_fee_value
-        rf_amount = _round(chargeable * rf_pct / Decimal("100"))
+        if rate.rf_authority and "1% up to" in rate.rf_authority and rf_pct == Decimal("0.5000"):
+            slab1 = min(chargeable, Decimal("50000"))
+            slab2 = max(Decimal("0"), chargeable - Decimal("50000"))
+            rf_amount = _round(slab1 * Decimal("0.01") + slab2 * rf_pct / Decimal("100"))
+        else:
+            rf_amount = _round(chargeable * rf_pct / Decimal("100"))
         rf_amount = _apply_cap(rf_amount, rate.reg_fee_min, rate.reg_fee_max)
         result.registration_fee = rf_amount
-        result.reg_fee_rate = f"{rf_pct}%"
-        if rate.reg_fee_min and rf_amount == rate.reg_fee_min:
-            result.reg_fee_rate += f" (min Rs.{rate.reg_fee_min})"
-        if rate.reg_fee_max and rf_amount == rate.reg_fee_max:
-            result.reg_fee_rate += f" (capped at Rs.{rate.reg_fee_max})"
+        if rf_pct == Decimal("0") and rate.reg_fee_min and rate.reg_fee_max and rate.reg_fee_min == rate.reg_fee_max:
+            result.reg_fee_rate = f"Fixed {format_inr(rate.reg_fee_min)}"
+        else:
+            result.reg_fee_rate = f"{rf_pct}%"
+            if rate.reg_fee_min and rf_amount == rate.reg_fee_min:
+                result.reg_fee_rate += f" (min {format_inr(rate.reg_fee_min)})"
+            if rate.reg_fee_max and rf_amount == rate.reg_fee_max:
+                result.reg_fee_rate += f" (capped at {format_inr(rate.reg_fee_max)})"
     elif rate.reg_fee_type == "FIXED":
         result.registration_fee = _round(rate.reg_fee_value)
-        result.reg_fee_rate = f"Fixed Rs.{rate.reg_fee_value}"
+        result.reg_fee_rate = f"Fixed {format_inr(rate.reg_fee_value)}"
 
     # --- User Charges ---
     uc_amount, uc_detail = _get_user_charge(
@@ -422,11 +480,84 @@ def calculate_deed_duty(
     # --- Historical warning ---
     if result.is_historical:
         result.warnings.append(
-            f"⚠️ Historical rate: showing rules in force as of {execution_date}. "
+            f"Historical rate: showing rules in force as of {execution_date}. "
             f"Current rules may differ."
         )
 
     return result
+
+
+def calculate_lease_duty(
+    session: Session,
+    monthly_rent: Decimal,
+    duration_months: int,
+    property_subtype: str = "COMMERCIAL",
+    advance_amount: Decimal = Decimal("0"),
+    execution_date: Optional[date] = None,
+    sheet_count: int = 10,
+    advance_is_refundable: Optional[bool] = None,
+) -> DutyBreakdown:
+    """
+    Deterministic AP Lease Duty & Registration Fee Calculator (Article 31, G.O.Ms.No. 588 dt. 04.12.2013).
+
+    Computes Average Annual Rent (AAR = monthly_rent * 12) or Total Rent (< 12 months),
+    applies Art. 31 slab SD + 0.1% RF + Rs. 100 User Charge, and applies Art. 31(c)
+    2% SD on chargeable non-refundable advance/premium with the refundable security
+    deposit clarification per C&IG Memo S1/4813/2008 & Memo CCRA1/13429/2008.
+    """
+    exec_d = execution_date or date.today()
+    aar = monthly_rent * Decimal("12")
+    total_rent = monthly_rent * Decimal(str(duration_months))
+    code = "LEASE_PERPETUAL" if duration_months > 360 else "LEASE"
+    subtype = (property_subtype or "ALL").upper()
+    breakdown = calculate_deed_duty(
+        session=session,
+        instrument_code=code,
+        area_type="ALL",
+        execution_date=exec_d,
+        consideration_value=aar,
+        market_value=aar,
+        property_subtype=subtype,
+        lease_months=duration_months,
+        annual_rent=aar,
+        total_rent=total_rent,
+        sheet_count=sheet_count,
+    )
+    if breakdown.status != "OK":
+        return breakdown
+
+    rent_sd = breakdown.stamp_duty
+    breakdown.rent_stamp_duty = rent_sd
+    breakdown.lease_advance_amount = advance_amount or Decimal("0")
+    if breakdown.lease_advance_amount > Decimal("0"):
+        if advance_is_refundable is True:
+            adv_sd = Decimal("0")
+        else:
+            adv_sd = _round(breakdown.lease_advance_amount * Decimal("2") / Decimal("100"))
+        breakdown.advance_stamp_duty = adv_sd
+        breakdown.stamp_duty = rent_sd + adv_sd
+        breakdown.non_adjustable_stamp_duty = breakdown.stamp_duty
+        breakdown.total_payable = (
+            breakdown.stamp_duty
+            + breakdown.transfer_duty
+            + breakdown.registration_fee
+            + breakdown.user_charge
+        )
+        alt_total = rent_sd + breakdown.transfer_duty + breakdown.registration_fee + breakdown.user_charge
+        if advance_is_refundable is True:
+            breakdown.warnings.append(
+                "Refundable Security Deposit Clarification: Under C&IG Memo No. S1/4813/2008 & Memo No. CCRA1/13429/2008, "
+                "a purely refundable security deposit (not adjustable towards rent and returnable at expiry) attracts ₹0.00 Stamp Duty."
+            )
+        else:
+            breakdown.warnings.append(
+                f"Art. 31(c) Advance/Premium Rule (C&IG Memo S1/4813/2008 & CCRA1/13429/2008): Non-refundable advance/premium "
+                f"or money advanced in addition to rent attracts 2% SD ({format_inr(adv_sd)} on {format_inr(breakdown.lease_advance_amount)}). "
+                f"If it is a purely refundable security deposit (not adjustable against rent and returnable on expiry), Advance SD is ₹0.00 "
+                f"and Total Payable is {format_inr(alt_total)}."
+            )
+            breakdown.sd_authority = f"{breakdown.sd_authority}; Art. 31(c) (2% on non-refundable advance/premium)"
+    return breakdown
 
 
 def compare_historical_vs_current(

@@ -27,9 +27,10 @@ def test_health_check(client):
 def test_frontend_mounted(client):
     res = client.get("/")
     assert res.status_code == 200
-    assert "Registration &amp; Stamps — AP IGRS Prototype" in res.text
-    assert "LOCAL MODE · NO LLM" in res.text
-    assert "CARD 2.0 Engine" in res.text
+    assert "Instrument Sans" in res.text
+    assert "Registration &amp; Stamps" in res.text
+    assert "CARD 2.0 Engine" not in res.text
+    assert "billDrawer" not in res.text
 
 
 
@@ -143,6 +144,22 @@ def test_api_legal_search_audit(client):
     assert any("41" in item["section_or_rule"] for item in items)
 
 
+def test_api_chat_auto_uses_gemini_when_configured(client, monkeypatch):
+    import backend.app.api.calculator as calculator_api
+
+    monkeypatch.setattr(calculator_api, "is_gemini_available", lambda: True)
+    monkeypatch.setattr(
+        calculator_api,
+        "run_gemini_chat",
+        lambda session, message: {"reply": "Gemini pipeline", "intent": "GEMINI_TEST"},
+    )
+
+    response = client.post("/api/chat", json={"message": "Explain Article 49"})
+
+    assert response.status_code == 200
+    assert response.json()["reply"] == "Gemini pipeline"
+
+
 def test_api_chat_calculation(client):
     payload = {"message": "Calculate duty for 15 Lakh sale deed in Vijayawada Corporation in 2025"}
     res = client.post("/api/chat", json=payload)
@@ -178,5 +195,56 @@ def test_api_chat_refusal_unverified(client):
     data = res.json()
     assert data["intent"] == "CALCULATION_REFUSED"
     assert "NOT_FOUND" in data["reply"]
+
+
+def test_api_chat_income_tax_section_56_answers_relative_gift_eligibility(client):
+    response = client.post(
+        "/api/chat",
+        json={
+            "message": (
+                "Sister is gifting property to her brother's wife—is sister-in-law eligible "
+                "for 2% relative gift duty under Section 56(2) of the Income Tax Act?"
+            ),
+            "use_gemini": False,
+        },
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert data["intent"] == "LEGAL_QUERY"
+    assert data["legal_docs"]
+    assert "56(2)" in data["reply"]
+    assert "2.00%" in data["reply"] or "2%" in data["reply"]
+    assert data["card_slip"] is None  # Never assumes an arbitrary rupee amount
+
+
+def test_api_chat_crop_loan_question_does_not_become_area_conversion(client):
+    response = client.post(
+        "/api/chat",
+        json={
+            "message": (
+                "A small farmer with 4 acres wet land takes a ₹2.5 lakh crop loan from a bank; "
+                "is he exempt from Stamp Duty and Registration Fee?"
+            ),
+            "use_gemini": False,
+        },
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert data["intent"] == "LEGAL_QUERY"
+    assert data["legal_docs"]
+    assert "AREA_CONVERT" not in data["intent"]
+    assert "land measurement conversion" not in data["reply"].lower()
+
+
+def test_api_chat_all_deed_rates_returns_verified_schedule(client):
+    response = client.post(
+        "/api/chat",
+        json={"message": "Rates of deeds for 2024", "use_gemini": False},
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert data["intent"] == "DEED_SCHEDULE"
+    assert "01_01" in data["reply"]
+    assert "5.0000%" in data["reply"] or "5%" in data["reply"]
 
 

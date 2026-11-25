@@ -17,8 +17,13 @@ if env_file.exists():
 else:
     load_dotenv()
 
-# Database
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./igrs_ap_local.db")
+# Database — resolve relative SQLite paths against PROJECT_ROOT so CWD never creates stray DBs
+_raw_db_url = os.getenv("DATABASE_URL", "sqlite:///./igrs_ap.db").strip()
+if _raw_db_url.startswith("sqlite:///./"):
+    _db_rel = _raw_db_url[len("sqlite:///./"):]
+    DATABASE_URL = f"sqlite:///{(PROJECT_ROOT / _db_rel).resolve().as_posix()}"
+else:
+    DATABASE_URL = _raw_db_url
 
 # Gemini Configuration
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")

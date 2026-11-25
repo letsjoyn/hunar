@@ -77,10 +77,13 @@ def load_duty_rates(session: Session, csv_path: Path):
                 reg_fee_value=_parse_decimal(row["reg_fee_value"]),
                 reg_fee_min=_parse_decimal(row.get("reg_fee_min", "")),
                 reg_fee_max=_parse_decimal(row.get("reg_fee_max", "")),
-                is_adjustable=_parse_bool(row.get("is_adjustable", "false")),
+                adjustable_sd_pct=_parse_decimal(row.get("adjustable_sd_pct", "0")) or Decimal("0"),
                 effective_from=_parse_date(row["effective_from"]),
                 effective_to=_parse_date(row.get("effective_to", "")),
                 authority_citation=row["authority_citation"].strip(),
+                sd_authority=row.get("sd_authority", "").strip() or None,
+                td_authority=row.get("td_authority", "").strip() or None,
+                rf_authority=row.get("rf_authority", "").strip() or None,
                 verification_status=row.get("verification_status", "PENDING_REVIEW").strip(),
                 notes=row.get("notes", "").strip() or None,
             )
@@ -135,3 +138,23 @@ def seed_all(session: Session, seeds_dir: Path):
     load_duty_rates(session, seeds_dir)
     load_user_charges(session, seeds_dir)
     load_structure_rates(session, seeds_dir)
+
+
+if __name__ == "__main__":
+    from backend.app.core.config import DATABASE_URL, SEEDS_DIR
+    from backend.app.db.models import DutyRate, ProhibitedProperty, StructureRate, UserCharge, create_tables, get_engine, get_session_factory
+    from backend.app.db.seed_prohibited import seed_prohibited_properties
+
+    eng = get_engine(DATABASE_URL)
+    create_tables(eng)
+    SessionLocal = get_session_factory(eng)
+    with SessionLocal() as sess:
+        if sess.query(DutyRate).count() == 0:
+            load_duty_rates(sess, SEEDS_DIR)
+        if sess.query(UserCharge).count() == 0:
+            load_user_charges(sess, SEEDS_DIR)
+        if sess.query(StructureRate).count() == 0:
+            load_structure_rates(sess, SEEDS_DIR)
+        if sess.query(ProhibitedProperty).count() == 0:
+            seed_prohibited_properties(sess)
+    print("Seeded runtime DB cleanly at", DATABASE_URL)

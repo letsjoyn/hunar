@@ -1,0 +1,35 @@
+{
+  "stage": "7 of 9 — metadata-filtered hybrid legal RAG",
+  "status": "INDEX_BUILT_REVIEW_STATUS_PRESERVED",
+  "source_database": "data/source_staging.db",
+  "source_database_sha256": "5b5fdbc3b80378fe08c12001846bf872da98a4c2ccf594a1bd2207b56b3f45a9",
+  "index_database": "stage7_hybrid_rag.db",
+  "generated_records": 4455,
+  "indexed_records": 4356,
+  "source_files_with_records": 23,
+  "scope_counts": {
+    "chit_funds": 188,
+    "criminal_procedure": 47,
+    "registration_stamps": 3921,
+    "service_rules": 16,
+    "unclassified": 184
+  },
+  "excluded_counts": {
+    "privacy_scope": 90,
+    "personal_material": 9
+  },
+  "review_status_policy": "No pending or unverified source was promoted. Search results retain source/document review, authority, extraction, and temporal metadata.",
+  "privacy_policy": "Pattern-matched email, Indian mobile, 12-digit identifier, and PAN-like content is excluded; withheld non-legal records and recognized personal diary/contact/identity form pages are also not indexed.",
+  "retrieval": {
+    "lexical": "SQLite FTS5 BM25",
+    "dense": "Pre-cached local SentenceTransformer cosine embeddings (384 dimensions; model=BAAI/bge-small-en-v1.5)",
+    "embedding_backend": "sentence_transformers",
+    "embedding_model": "BAAI/bge-small-en-v1.5",
+    "embedding_dimensions": 384,
+    "fusion": "Reciprocal-rank fusion; source metadata remains canonical in SQLite",
+    "semantic_limit": "Pretrained model is local-only; source documents are not sent to an embedding API."
+  },
+  "runtime_rate_data_changed": false,
+  "legacy_legal_database_changed": false,
+  "existing_chroma_collections_changed": false
+}

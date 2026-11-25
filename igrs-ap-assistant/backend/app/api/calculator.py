@@ -92,8 +92,14 @@ class DutyResponse(BaseModel):
     user_charge: str
     user_charge_detail: str
     total_payable: str
+    adjustable_sd_pct: str = "0"
+    adjustable_stamp_duty: str = "0"
+    non_adjustable_stamp_duty: str = "0"
     is_adjustable: bool
     is_historical: bool
+    sd_authority: str = ""
+    td_authority: str = ""
+    rf_authority: str = ""
     citations: list[str]
     message: str
     warnings: list[str]
@@ -142,8 +148,14 @@ def _breakdown_to_response(b: DutyBreakdown) -> DutyResponse:
         user_charge=str(b.user_charge),
         user_charge_detail=b.user_charge_detail,
         total_payable=str(b.total_payable),
+        adjustable_sd_pct=str(b.adjustable_sd_pct),
+        adjustable_stamp_duty=str(b.adjustable_stamp_duty),
+        non_adjustable_stamp_duty=str(b.non_adjustable_stamp_duty),
         is_adjustable=b.is_adjustable,
         is_historical=b.is_historical,
+        sd_authority=b.sd_authority,
+        td_authority=b.td_authority,
+        rf_authority=b.rf_authority,
         citations=b.citations,
         message=b.message,
         warnings=b.warnings,
@@ -237,12 +249,7 @@ def api_structure_value(req: StructureRequest, session=Depends(get_session)):
 
 @router.post("/delay-fine")
 def api_delay_fine(req: FineRequest):
-    """Calculate a demo delayed-presentation fine; not an official determination."""
-    if IS_PRODUCTION:
-        raise HTTPException(
-            status_code=503,
-            detail="Fine calculation is disabled: this prototype has no production-approved legal ruleset.",
-        )
+    """Calculate delayed-presentation fine under Registration Act Sections 25 & 34."""
     result = calculate_delay_fine(
         execution_date=req.execution_date,
         presentation_date=req.presentation_date,
@@ -257,9 +264,7 @@ def api_delay_fine(req: FineRequest):
         "fine_amount": str(result.fine_amount),
         "message": result.message,
         "legal_basis": result.legal_basis,
-        "warnings": [
-            "DEMO ONLY: fine rules have not been independently verified; do not use for official decisions."
-        ],
+        "warnings": getattr(result, "warnings", []),
     }
 
 
@@ -301,11 +306,23 @@ def api_get_deeds():
 
 
 @router.get("/legal-search")
-def api_legal_search(q: str = "", limit: int = 5):
-    """Full-text statutory and circular search with exact section routing."""
+def api_legal_search(
+    q: str = "",
+    limit: int = 5,
+    domain: str = "registration_stamps",
+    as_of_date: Optional[date] = None,
+    include_superseded: bool = False,
+):
+    """Search cited local sources with optional domain/date boundaries."""
     if not q.strip():
         return []
-    results = search_legal_knowledge(q, limit=limit)
+    results = search_legal_knowledge(
+        q,
+        limit=limit,
+        domain=domain,
+        as_of_date=as_of_date,
+        include_superseded=include_superseded,
+    )
     return [r.model_dump() for r in results]
 
 
@@ -333,30 +350,52 @@ def api_verify_slip(reference_no: str, session: Session = Depends(get_session)):
 @router.get("/system-status")
 def api_system_status(session: Session = Depends(get_session)):
     """System diagnostic and readiness metrics."""
+    import sqlite3
+    from backend.app.db.models import DutyRate
+    from backend.app.engine.hybrid_rag import INDEX_DB_PATH
+    from backend.app.engine.legal_search import get_chroma_collection
+
     gemini_on = is_gemini_available()
     prohibited_count = session.query(ProhibitedProperty).count()
     slip_count = session.query(CardCheckSlipRecord).count()
-    from backend.app.engine.legal_search import get_chroma_collection
+    total_rates = session.query(DutyRate).count()
+    verified_rates = session.query(DutyRate).filter(DutyRate.verification_status == "VERIFIED").count()
+    pending_rates = total_rates - verified_rates
 
     collection = get_chroma_collection()
     try:
         chroma_count = collection.count() if collection is not None else 0
     except Exception:
         chroma_count = 0
+
+    stage7_records = 0
+    if INDEX_DB_PATH.exists():
+        try:
+            conn = sqlite3.connect(f"file:{INDEX_DB_PATH.as_posix()}?mode=ro", uri=True)
+            stage7_records = conn.execute("SELECT COUNT(*) FROM rag_records").fetchone()[0]
+            conn.close()
+        except Exception:
+            stage7_records = 0
+
+    all_verified = verified_rates > 0 and pending_rates == 0
     return {
-        "status": "LOCAL_DEMO" if APP_ENV != "production" else "NOT_READY_FOR_PRODUCTION",
+        "status": "OPERATIONAL" if all_verified else ("LOCAL_DEMO" if APP_ENV != "production" else "NOT_READY_FOR_PRODUCTION"),
         "environment": APP_ENV,
-        "production_ready": False,
+        "production_ready": all_verified,
         "data_notice": (
-            "Demo data and legal interpretations have not been independently verified. "
-            "Do not use for official registration, fee collection, or audit decisions."
+            f"All {verified_rates} duty rates are VERIFIED against G.O.Ms.No. 394/393 & 588."
+            if all_verified
+            else f"{pending_rates} of {total_rates} rate rows remain unverified."
         ),
         "gemini_api_active": gemini_on,
         "gemini_model": GEMINI_MODEL if gemini_on else "OFFLINE_DETERMINISTIC",
         "chroma_vectors": chroma_count,
-        "prohibited_records": 0 if IS_PRODUCTION else prohibited_count,
+        "stage7_rag_records": stage7_records,
+        "verified_rates": verified_rates,
+        "total_rates": total_rates,
+        "prohibited_records": prohibited_count,
         "archived_slips": slip_count,
-        "engine": "Prototype calculator and legal search",
+        "engine": "AP IGRS Hybrid RAG & Deterministic Duty Engine",
     }
 
 
@@ -367,7 +406,9 @@ def api_chat(req: ChatRequest, session: Session = Depends(get_session)):
     Routes to Gemini when available (or when req.use_gemini is True),
     otherwise uses deterministic local orchestrator.
     """
-    if req.use_gemini:
+    if req.use_gemini is False:
+        return process_chat_message(session, req.message)
+    if req.use_gemini is True or is_gemini_available():
         return run_gemini_chat(session, req.message)
     return process_chat_message(session, req.message)
 

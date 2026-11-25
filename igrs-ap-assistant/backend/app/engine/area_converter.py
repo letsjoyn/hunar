@@ -19,7 +19,7 @@ Conversion Table to Sq.Yards:
 """
 import re
 from decimal import Decimal, ROUND_HALF_UP
-from typing import Optional
+from backend.app.engine.formatting import strip_numeric_commas
 from pydantic import BaseModel, Field
 
 
@@ -178,9 +178,10 @@ def parse_composite_land_string(text: str) -> Decimal:
     Returns total area in Square Yards.
     """
     total_sq_yds = Decimal("0")
+    cleaned = strip_numeric_commas(text)
     # Matches pairs of number + unit
-    pattern = re.compile(r"(\d+(?:\.\d+)?)\s*([a-zA-Z\.\s]+)", re.IGNORECASE)
-    matches = pattern.findall(text)
+    pattern = re.compile(r"(\d+(?:\.\d+)?)\s*([a-zA-Z\.]+(?:\s+[a-zA-Z\.]+)?)", re.IGNORECASE)
+    matches = pattern.findall(cleaned)
     
     if not matches:
         raise ValueError(f"Could not parse land area description: '{text}'")

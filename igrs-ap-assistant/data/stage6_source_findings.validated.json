@@ -1,0 +1,790 @@
+{
+    "schema_version": 1,
+    "purpose": "Human-curated source locator findings for Stage 6. These are evidence leads, not approval decisions or runtime rates.",
+    "findings": [
+        {
+            "codes": [
+                "01-01"
+            ],
+            "era": "historical_and_2014_change",
+            "source_filename": "2014REV_MS394.PDF",
+            "provision_locator": "GO:394:SECTION-9:SALE-DEED-STAMP-DUTY",
+            "source_locator": "PDF page 1, lines 28-53",
+            "relation_type": "PRIMARY_ORDER_RATE_HISTORY",
+            "citation": "G.O.Ms.No.394, Revenue (Registration.I) Department, dated 26-11-2014, supplied PDF page 1, paragraphs 1-3 and notification",
+            "component_findings": {
+                "stamp_duty": [
+                    "G.O.Ms.No.719 reduced sale-deed stamp duty from 7%/6% to 5% with effect from 01-09-2010",
+                    "G.O.Ms.No.162 reduced sale-deed stamp duty from 5% to 4%; its effective date is not stated in the G.O.394 recital",
+                    "G.O.Ms.No.394 rescinds G.O.Ms.No.162 and restores the G.O.Ms.No.719 level with immediate effect on 26-11-2014"
+                ]
+            },
+            "limitations": "G.O.Ms.No.719 and G.O.Ms.No.162 are referenced but not supplied as full orders here. The recital gives the 2010 effective date and 2014 immediate restoration date, but does not state G.O.Ms.No.162's effective date or define all location/property-subtype scope. Does not establish transfer duty, registration fee, later changes after the latest supplied 2024 source, or treatment of deed-specific exemptions."
+        },
+        {
+            "codes": [
+                "01-01"
+            ],
+            "era": "2024_snapshot_candidate",
+            "source_filename": "Dairy 2024.txt \u2014 sanitized candidate pages 127-131",
+            "provision_locator": "DAIRY-2024:TEXT-PAGES:127-131:STAMP-DUTY-AND-REGISTRATION-FEES-AT-A-GLANCE",
+            "source_locator": "Dairy 2024 text page sequences 130-131, at-a-glance table: Sale of immovable property (Art.47-A) and transfer-duty note",
+            "relation_type": "SECONDARY_RATE_SNAPSHOT_CANDIDATE",
+            "citation": "Dairy 2024, derived text page sequences 130-131, Stamp Duty and Registration Fees at a Glance",
+            "component_findings": {
+                "stamp_duty_percent": "5",
+                "transfer_duty_percent": "1.5 (subject to stated geographic/category qualifications)",
+                "registration_fee_percent": "1 (annotated with G.O.Ms.No.393 dated 26-11-2014)"
+            },
+            "limitations": "Departmental diary is secondary text. OCR/table alignment and transfer-duty note conditions require visual/source review. This supports an as-printed 2024 snapshot candidate, not proof of current legal effect after 2024 or a complete temporal interval."
+        },
+        {
+            "codes": [
+                "01-01"
+            ],
+            "era": "2014_registration_fee_change",
+            "source_filename": "2014REV_MS393.PDF",
+            "provision_locator": "GO:393:SECTION-78:CATEGORY-1:ITEM-1",
+            "source_locator": "PDF page 1, Section 78 Table of Fees Category (1), Sl.No.1, column (3)",
+            "relation_type": "PRIMARY_ORDER_COMPONENT_SUPPORT",
+            "citation": "G.O.Ms.No.393, Revenue (Registration.I) Department, dated 26-11-2014, supplied PDF page 1",
+            "component_findings": {
+                "registration_fee_percent": "Changes the cited fee item from 0.5% to 1%"
+            },
+            "limitations": "Order text defines one Table of Fees item; map to the sale code using the reproduced G.O.Ms.No.463 table. Does not establish other deed fee rows or all later amendments."
+        },
+        {
+            "codes": [
+                "01-22"
+            ],
+            "era": "2024_snapshot_candidate",
+            "source_filename": "Dairy 2024.txt \u2014 sanitized candidate pages 127-131",
+            "provision_locator": "DAIRY-2024:TEXT-PAGES:127-131:STAMP-DUTY-AND-REGISTRATION-FEES-AT-A-GLANCE",
+            "source_locator": "Dairy 2024 text page sequences 130-131, at-a-glance table: Sale of immovable property (Art.47-A)",
+            "relation_type": "SECONDARY_RATE_SNAPSHOT_CANDIDATE",
+            "citation": "Dairy 2024, derived text page sequences 130-131, Stamp Duty and Registration Fees at a Glance",
+            "component_findings": {
+                "stamp_duty_percent": "5",
+                "transfer_duty_percent": "1.5 (subject to stated geographic/category qualifications)",
+                "registration_fee_percent": "1"
+            },
+            "limitations": "The deed-specific meaning of 'Sale (others)' and applicability of exemptions require legal mapping. Secondary OCR snapshot only; not an effective-date determination."
+        },
+        {
+            "codes": [
+                "01-20"
+            ],
+            "era": "2024_snapshot_candidate",
+            "source_filename": "Dairy 2024.txt \u2014 sanitized candidate pages 127-131",
+            "provision_locator": "DAIRY-2024:TEXT-PAGES:127-131:STAMP-DUTY-AND-REGISTRATION-FEES-AT-A-GLANCE",
+            "source_locator": "Dairy 2024 text page sequence 127, item 9, Certificate of Sale (Art.16)",
+            "relation_type": "SECONDARY_RATE_SNAPSHOT_CANDIDATE",
+            "citation": "Dairy 2024, derived text page sequence 127, at-a-glance item 9",
+            "component_findings": {
+                "stamp_duty_percent": "4",
+                "registration_fee_percent": "0.5"
+            },
+            "limitations": "Secondary table only; confirm certificate subtype, value basis, and subsequent amendments. No effective-from date assigned."
+        },
+        {
+            "codes": [
+                "01-12",
+                "01-13"
+            ],
+            "era": "2024_snapshot_candidate",
+            "source_filename": "Dairy 2024.txt \u2014 sanitized candidate pages 127-131",
+            "provision_locator": "DAIRY-2024:TEXT-PAGES:127-131:STAMP-DUTY-AND-REGISTRATION-FEES-AT-A-GLANCE",
+            "source_locator": "Dairy 2024 text page sequence 127, item 10, Conveyance (Art.20)",
+            "relation_type": "SECONDARY_RATE_SNAPSHOT_CANDIDATE",
+            "citation": "Dairy 2024, derived text page sequence 127, at-a-glance item 10",
+            "component_findings": {
+                "stamp_duty_percent": "4",
+                "registration_fee_percent": "0.5"
+            },
+            "limitations": "The at-a-glance entry does not distinguish the workbook's consideration/no-consideration variants or state the value basis. Secondary OCR snapshot only; no effective-from date assigned."
+        },
+        {
+            "codes": [
+                "01-21"
+            ],
+            "era": "2024_snapshot_candidate",
+            "source_filename": "Dairy 2024.txt \u2014 sanitized candidate pages 127-131",
+            "provision_locator": "DAIRY-2024:TEXT-PAGES:127-131:STAMP-DUTY-AND-REGISTRATION-FEES-AT-A-GLANCE",
+            "source_locator": "Dairy 2024 text page sequence 131, item 37, Decree (Art.20)",
+            "relation_type": "SECONDARY_RATE_SNAPSHOT_CANDIDATE",
+            "citation": "Dairy 2024, derived text page sequence 131, at-a-glance item 37",
+            "component_findings": {
+                "stamp_duty_percent": "4 on market value",
+                "registration_fee_percent": "0.5"
+            },
+            "limitations": "Verify article/subtype and value basis against the original Act/schedule. Secondary OCR snapshot only; no effective-from date assigned."
+        },
+        {
+            "codes": [
+                "01-11"
+            ],
+            "era": "2024_snapshot_candidate",
+            "source_filename": "Dairy 2024.txt \u2014 sanitized candidate pages 127-131",
+            "provision_locator": "DAIRY-2024:TEXT-PAGES:127-131:STAMP-DUTY-AND-REGISTRATION-FEES-AT-A-GLANCE",
+            "source_locator": "Dairy 2024 text page sequence 131, item 35, Agreement of Sale-cum-GPA",
+            "relation_type": "SECONDARY_RATE_SNAPSHOT_CANDIDATE",
+            "citation": "Dairy 2024, derived text page sequence 131, at-a-glance item 35",
+            "component_findings": {
+                "stamp_duty_percent": "5",
+                "registration_fee_fixed_rupees": "2000"
+            },
+            "limitations": "Secondary OCR snapshot; verify calculation basis, agreement subtype and later changes. No effective-from date assigned."
+        },
+        {
+            "codes": [
+                "01-10"
+            ],
+            "era": "2024_snapshot_candidate",
+            "source_filename": "Dairy 2024.txt \u2014 sanitized candidate pages 127-131",
+            "provision_locator": "DAIRY-2024:TEXT-PAGES:127-131:STAMP-DUTY-AND-REGISTRATION-FEES-AT-A-GLANCE",
+            "source_locator": "Dairy 2024 text page sequence 131, item 36, Development/Construction Agreement-cum-GPA",
+            "relation_type": "SECONDARY_RATE_SNAPSHOT_CANDIDATE",
+            "citation": "Dairy 2024, derived text page sequence 131, at-a-glance item 36",
+            "component_findings": {
+                "stamp_duty_percent": "1",
+                "registration_fee_percent": "0.5, maximum Rs.20,000"
+            },
+            "limitations": "Secondary OCR snapshot; confirm value basis and whether the cap is represented in the correct column. No effective-from date assigned."
+        },
+        {
+            "codes": [
+                "02-01",
+                "02-02"
+            ],
+            "era": "2024_snapshot_candidate",
+            "source_filename": "Dairy 2024.txt \u2014 sanitized candidate pages 127-131",
+            "provision_locator": "DAIRY-2024:TEXT-PAGES:127-131:STAMP-DUTY-AND-REGISTRATION-FEES-AT-A-GLANCE",
+            "source_locator": "Dairy 2024 text page sequence 129, item 20(a)-(b), Mortgage",
+            "relation_type": "SECONDARY_RATE_SNAPSHOT_CANDIDATE",
+            "citation": "Dairy 2024, derived text page sequence 129, at-a-glance item 20",
+            "component_findings": {
+                "02-01 stamp_duty_percent": "2",
+                "02-01 registration_fee_percent": "0.1",
+                "02-02 stamp_duty_percent": "0.5 in other cases",
+                "02-02 registration_fee_percent": "0.1"
+            },
+            "limitations": "Workbook uses Articles 35A/35B while the diary table is labeled Article 35. The subtype/article mapping requires review; secondary OCR snapshot only."
+        },
+        {
+            "codes": [
+                "03-05",
+                "03-06",
+                "03-07"
+            ],
+            "era": "2024_snapshot_candidate",
+            "source_filename": "Dairy 2024.txt \u2014 sanitized candidate pages 127-131",
+            "provision_locator": "DAIRY-2024:TEXT-PAGES:127-131:STAMP-DUTY-AND-REGISTRATION-FEES-AT-A-GLANCE",
+            "source_locator": "Dairy 2024 text page sequence 128, item 15, Gift (Art.29)",
+            "relation_type": "SECONDARY_RATE_SNAPSHOT_CANDIDATE",
+            "citation": "Dairy 2024, derived text page sequence 128, at-a-glance item 15",
+            "component_findings": {
+                "03-05/03-06 stamp_duty_percent": "2",
+                "03-07 stamp_duty_percent": "5",
+                "registration_fee_percent": "0.5, minimum Rs.1,000, maximum Rs.10,000"
+            },
+            "limitations": "The relative definition and location-based transfer-duty notes must be separately resolved. Secondary OCR snapshot only; no effective-from date assigned."
+        },
+        {
+            "codes": [
+                "03-01",
+                "03-02",
+                "43-02"
+            ],
+            "era": "2024_snapshot_candidate",
+            "source_filename": "Dairy 2024.txt \u2014 sanitized candidate pages 127-131",
+            "provision_locator": "DAIRY-2024:TEXT-PAGES:127-131:STAMP-DUTY-AND-REGISTRATION-FEES-AT-A-GLANCE",
+            "source_locator": "Dairy 2024 text page sequence 130, item 29, Settlement (Art.49)",
+            "relation_type": "SECONDARY_RATE_SNAPSHOT_CANDIDATE",
+            "citation": "Dairy 2024, derived text page sequence 130, at-a-glance item 29",
+            "component_findings": {
+                "03-01 stamp_duty_percent": "2 for family",
+                "03-02/43-02 stamp_duty_percent": "3 for others",
+                "registration_fee_percent": "0.5, minimum Rs.1,000, maximum Rs.10,000"
+            },
+            "limitations": "The family definition and settlement classification must be matched to the executed instrument. Secondary OCR snapshot only; no effective-from date assigned."
+        },
+        {
+            "codes": [
+                "04-01",
+                "04-02"
+            ],
+            "era": "2024_snapshot_candidate",
+            "source_filename": "Dairy 2024.txt \u2014 sanitized candidate pages 127-131",
+            "provision_locator": "DAIRY-2024:TEXT-PAGES:127-131:STAMP-DUTY-AND-REGISTRATION-FEES-AT-A-GLANCE",
+            "source_locator": "Dairy 2024 text page sequence 129, item 21, Partition (Art.40)",
+            "relation_type": "SECONDARY_RATE_SNAPSHOT_CANDIDATE",
+            "citation": "Dairy 2024, derived text page sequence 129, at-a-glance item 21",
+            "component_findings": {
+                "04-01 stamp_duty_percent": "1 for family",
+                "04-02 stamp_duty_percent": "2 for others",
+                "registration_fee_fixed_rupees": "1000"
+            },
+            "limitations": "The value basis/VSS rule must be verified against the complete schedule. Secondary OCR snapshot only; no effective-from date assigned."
+        },
+        {
+            "codes": [
+                "06-01"
+            ],
+            "era": "2024_snapshot_candidate",
+            "source_filename": "Dairy 2024.txt \u2014 sanitized candidate pages 127-131",
+            "provision_locator": "DAIRY-2024:TEXT-PAGES:127-131:STAMP-DUTY-AND-REGISTRATION-FEES-AT-A-GLANCE",
+            "source_locator": "Dairy 2024 text page sequence 128, item 13, Exchange (Art.27)",
+            "relation_type": "SECONDARY_RATE_SNAPSHOT_CANDIDATE",
+            "citation": "Dairy 2024, derived text page sequence 128, at-a-glance item 13",
+            "component_findings": {
+                "stamp_duty_percent": "4 on consideration or market value, whichever is higher",
+                "registration_fee_percent": "0.5"
+            },
+            "limitations": "Transfer-duty applicability has separate geographic qualifications. Secondary OCR snapshot only; no effective-from date assigned."
+        },
+        {
+            "codes": [
+                "30-01"
+            ],
+            "era": "2024_snapshot_candidate",
+            "source_filename": "Dairy 2024.txt \u2014 sanitized candidate pages 127-131",
+            "provision_locator": "DAIRY-2024:TEXT-PAGES:127-131:STAMP-DUTY-AND-REGISTRATION-FEES-AT-A-GLANCE",
+            "source_locator": "Dairy 2024 text page sequence 127, item 1, Adoption Deed (Art.3)",
+            "relation_type": "SECONDARY_RATE_SNAPSHOT_CANDIDATE",
+            "citation": "Dairy 2024, derived text page sequence 127, at-a-glance item 1",
+            "component_findings": {
+                "stamp_duty_fixed_rupees": "35",
+                "registration_fee_fixed_rupees": "500"
+            },
+            "limitations": "Secondary OCR snapshot only; no effective-from date assigned."
+        },
+        {
+            "codes": [
+                "31-01"
+            ],
+            "era": "2024_snapshot_candidate",
+            "source_filename": "Dairy 2024.txt \u2014 sanitized candidate pages 127-131",
+            "provision_locator": "DAIRY-2024:TEXT-PAGES:127-131:STAMP-DUTY-AND-REGISTRATION-FEES-AT-A-GLANCE",
+            "source_locator": "Dairy 2024 text page sequence 127, item 2, Affidavit (Art.4)",
+            "relation_type": "SECONDARY_RATE_SNAPSHOT_CANDIDATE",
+            "citation": "Dairy 2024, derived text page sequence 127, at-a-glance item 2",
+            "component_findings": {
+                "stamp_duty_fixed_rupees": "10",
+                "registration_fee_fixed_rupees": "500 if susceptible to valuation; Rs.1,000 otherwise"
+            },
+            "limitations": "Workbook has one fee amount and does not encode the source's conditional branch. Secondary OCR snapshot only; no effective-from date assigned."
+        },
+        {
+            "codes": [
+                "33-01"
+            ],
+            "era": "2024_snapshot_candidate",
+            "source_filename": "Dairy 2024.txt \u2014 sanitized candidate pages 127-131",
+            "provision_locator": "DAIRY-2024:TEXT-PAGES:127-131:STAMP-DUTY-AND-REGISTRATION-FEES-AT-A-GLANCE",
+            "source_locator": "Dairy 2024 text page sequence 127, item 7, Award not directing partition (Art.12)",
+            "relation_type": "SECONDARY_RATE_SNAPSHOT_CANDIDATE",
+            "citation": "Dairy 2024, derived text page sequence 127, at-a-glance item 7",
+            "component_findings": {
+                "stamp_duty_fixed_rupees": "200",
+                "registration_fee_fixed_rupees": "500"
+            },
+            "limitations": "Secondary OCR snapshot only; no effective-from date assigned."
+        },
+        {
+            "codes": [
+                "05-04"
+            ],
+            "era": "2024_snapshot_candidate",
+            "source_filename": "Dairy 2024.txt \u2014 sanitized candidate pages 127-131",
+            "provision_locator": "DAIRY-2024:TEXT-PAGES:127-131:STAMP-DUTY-AND-REGISTRATION-FEES-AT-A-GLANCE",
+            "source_locator": "Dairy 2024 text page sequence 130, item 25, Reconveyance of mortgaged property (Art.45(b))",
+            "relation_type": "SECONDARY_RATE_SNAPSHOT_CANDIDATE",
+            "citation": "Dairy 2024, derived text page sequence 130, at-a-glance item 25",
+            "component_findings": {
+                "stamp_duty_fixed_rupees": "50",
+                "registration_fee_fixed_rupees": "500"
+            },
+            "limitations": "Secondary OCR snapshot only; no effective-from date assigned."
+        },
+        {
+            "codes": [
+                "07-06"
+            ],
+            "era": "2024_snapshot_candidate",
+            "source_filename": "Dairy 2024.txt \u2014 sanitized candidate pages 127-131",
+            "provision_locator": "DAIRY-2024:TEXT-PAGES:127-131:STAMP-DUTY-AND-REGISTRATION-FEES-AT-A-GLANCE",
+            "source_locator": "Dairy 2024 text page sequence 130, item 31, Surrender of Lease (Art.52)",
+            "relation_type": "SECONDARY_RATE_SNAPSHOT_CANDIDATE",
+            "citation": "Dairy 2024, derived text page sequence 130, at-a-glance item 31",
+            "component_findings": {
+                "stamp_duty_fixed_rupees": "30",
+                "registration_fee_fixed_rupees": "1000"
+            },
+            "limitations": "Secondary OCR snapshot only; no effective-from date assigned."
+        },
+        {
+            "codes": [
+                "08-03",
+                "35-01",
+                "36-01",
+                "20-02"
+            ],
+            "era": "2024_snapshot_candidate",
+            "source_filename": "Dairy 2024.txt \u2014 sanitized candidate pages 127-131",
+            "provision_locator": "DAIRY-2024:TEXT-PAGES:127-131:STAMP-DUTY-AND-REGISTRATION-FEES-AT-A-GLANCE",
+            "source_locator": "Dairy 2024 text page sequence 127, item 8, Cancellation of deed (Art.15)",
+            "relation_type": "SECONDARY_RATE_SNAPSHOT_CANDIDATE",
+            "citation": "Dairy 2024, derived text page sequence 127, at-a-glance item 8",
+            "component_findings": {
+                "stamp_duty_fixed_rupees": "30",
+                "registration_fee_fixed_rupees": "1000"
+            },
+            "limitations": "Verify each deed variant's article and cancellation conditions. Secondary OCR snapshot only; no effective-from date assigned."
+        },
+        {
+            "codes": [
+                "08-04"
+            ],
+            "era": "2024_snapshot_candidate",
+            "source_filename": "Dairy 2024.txt \u2014 sanitized candidate pages 127-131",
+            "provision_locator": "DAIRY-2024:TEXT-PAGES:127-131:STAMP-DUTY-AND-REGISTRATION-FEES-AT-A-GLANCE",
+            "source_locator": "Dairy 2024 text page sequence 130, item 30, Revocation of Settlement (Art.49-B)",
+            "relation_type": "SECONDARY_RATE_SNAPSHOT_CANDIDATE",
+            "citation": "Dairy 2024, derived text page sequence 130, at-a-glance item 30",
+            "component_findings": {
+                "stamp_duty_fixed_rupees": "90",
+                "registration_fee_fixed_rupees": "1000"
+            },
+            "limitations": "Secondary OCR snapshot only; no effective-from date assigned."
+        },
+        {
+            "codes": [
+                "41-01"
+            ],
+            "era": "2024_snapshot_candidate",
+            "source_filename": "Dairy 2024.txt \u2014 sanitized candidate pages 127-131",
+            "provision_locator": "DAIRY-2024:TEXT-PAGES:127-131:STAMP-DUTY-AND-REGISTRATION-FEES-AT-A-GLANCE",
+            "source_locator": "Dairy 2024 text page sequence 130, item 24, Special Power of Attorney (Art.42(a))",
+            "relation_type": "SECONDARY_RATE_SNAPSHOT_CANDIDATE",
+            "citation": "Dairy 2024, derived text page sequence 130, at-a-glance item 24",
+            "component_findings": {
+                "stamp_duty_fixed_rupees": "20",
+                "registration_fee_fixed_rupees": "1000"
+            },
+            "limitations": "Workbook article mapping is blank; verify article and classification. Secondary OCR snapshot only."
+        },
+        {
+            "codes": [
+                "41-02"
+            ],
+            "era": "2024_snapshot_candidate",
+            "source_filename": "Dairy 2024.txt \u2014 sanitized candidate pages 127-131",
+            "provision_locator": "DAIRY-2024:TEXT-PAGES:127-131:STAMP-DUTY-AND-REGISTRATION-FEES-AT-A-GLANCE",
+            "source_locator": "Dairy 2024 text page sequence 130, item 23(ii), Power of Attorney for other purpose",
+            "relation_type": "SECONDARY_RATE_SNAPSHOT_CANDIDATE",
+            "citation": "Dairy 2024, derived text page sequence 130, at-a-glance item 23(ii)",
+            "component_findings": {
+                "stamp_duty_fixed_rupees": "50",
+                "registration_fee_fixed_rupees": "1000"
+            },
+            "limitations": "Workbook article mapping is blank and deed purpose mapping requires review. Secondary OCR snapshot only."
+        },
+        {
+            "codes": [
+                "01-02",
+                "01-03"
+            ],
+            "era": "source_conflict",
+            "source_filename": "Dairy 2024.txt \u2014 sanitized candidate pages 127-131",
+            "provision_locator": "DAIRY-2024:TEXT-PAGES:127-131:STAMP-DUTY-AND-REGISTRATION-FEES-AT-A-GLANCE",
+            "source_locator": "Dairy 2024 text page sequences 127 and 131; Article 6(B) and Article 47-A possession-agreement entries",
+            "relation_type": "ARTICLE_MAPPING_CONFLICT",
+            "citation": "Dairy 2024, derived text page sequences 127 and 131, at-a-glance entries",
+            "component_findings": {
+                "conflict": "Workbook maps 01-02/01-03 to Article 6B; 2024 Diary's possession agreement line is Art.47-A and says 5% while Art.6(B) OCR entry is degraded."
+            },
+            "limitations": "Do not apply either rate until the deed's possession terms and the governing article are legally classified."
+        },
+        {
+            "codes": [
+                "02-08"
+            ],
+            "era": "source_conflict",
+            "source_filename": "Dairy 2024.txt \u2014 sanitized candidate pages 127-131",
+            "provision_locator": "DAIRY-2024:TEXT-PAGES:127-131:STAMP-DUTY-AND-REGISTRATION-FEES-AT-A-GLANCE",
+            "source_locator": "Dairy 2024 text page sequences 127 and 129, Article 7 Deposit of Title Deeds entries",
+            "relation_type": "CAP_CONFLICT",
+            "citation": "Dairy 2024, derived text page sequences 127 and 129, at-a-glance entries",
+            "component_findings": {
+                "conflict": "Workbook shows stamp-duty maximum Rs.50,000; Diary OCR appears to show Rs.2,00,000. Workbook registration-fee maximum is Rs.10,000; 2010 Table of Fees candidate gives Rs.1,000."
+            },
+            "limitations": "The table transcription is low-confidence/columns may be shifted; visually verify original table and amendment history."
+        },
+        {
+            "codes": [
+                "02-16",
+                "02-17",
+                "02-18"
+            ],
+            "era": "source_conflict",
+            "source_filename": "Dairy 2024.txt \u2014 sanitized candidate pages 127-131",
+            "provision_locator": "DAIRY-2024:TEXT-PAGES:127-131:STAMP-DUTY-AND-REGISTRATION-FEES-AT-A-GLANCE",
+            "source_locator": "Dairy 2024 text page sequence 129, further-charge mortgage table",
+            "relation_type": "FEE_TYPE_CONFLICT",
+            "citation": "Dairy 2024, derived text page sequence 129, at-a-glance Article 28 further-charge entries",
+            "component_findings": {
+                "conflict": "Workbook records percentage registration fees; the Dairy table lists Rs.500 fixed for further charges."
+            },
+            "limitations": "Confirm column alignment and exact Article 28 subtype before normalizing the fee type."
+        },
+        {
+            "codes": [
+                "03-08",
+                "03-09"
+            ],
+            "era": "source_conflict",
+            "source_filename": "Dairy 2024.txt \u2014 sanitized candidate pages 127-131",
+            "provision_locator": "DAIRY-2024:TEXT-PAGES:127-131:STAMP-DUTY-AND-REGISTRATION-FEES-AT-A-GLANCE",
+            "source_locator": "Dairy 2024 text page sequences 128 and 131, Gift table and transfer-duty note",
+            "relation_type": "EXEMPTION_OR_COMPONENT_CONFLICT",
+            "citation": "Dairy 2024, derived text page sequences 128 and 131, at-a-glance entries and notes",
+            "component_findings": {
+                "conflict": "Gift rate for charitable institutions is not clearly established in this table; government/local-body transfer-duty note appears inconsistent with workbook's zero TD."
+            },
+            "limitations": "Specific remission/exemption orders and beneficiary/property conditions must be checked; do not infer a blanket rate or exemption."
+        },
+        {
+            "codes": [
+                "20-01"
+            ],
+            "era": "source_conflict",
+            "source_filename": "Dairy 2024.txt \u2014 sanitized candidate pages 127-131",
+            "provision_locator": "DAIRY-2024:TEXT-PAGES:127-131:STAMP-DUTY-AND-REGISTRATION-FEES-AT-A-GLANCE",
+            "source_locator": "Dairy 2024 text page sequence 131, Will entry",
+            "relation_type": "FIXED_FEE_CONFLICT",
+            "citation": "Dairy 2024, derived text page sequence 131, at-a-glance Will entry",
+            "component_findings": {
+                "conflict": "Diary lists Rs.500; workbook registration-fee min/max are Rs.1,000."
+            },
+            "limitations": "Verify Will registration fee and applicable category against current fee table."
+        },
+        {
+            "codes": [
+                "37-01"
+            ],
+            "era": "source_conflict",
+            "source_filename": "Dairy 2024.txt \u2014 sanitized candidate pages 127-131",
+            "provision_locator": "DAIRY-2024:TEXT-PAGES:127-131:STAMP-DUTY-AND-REGISTRATION-FEES-AT-A-GLANCE",
+            "source_locator": "Dairy 2024 text page sequence 128, Divorce entry",
+            "relation_type": "UNIT_CONFLICT",
+            "citation": "Dairy 2024, derived text page sequence 128, at-a-glance Divorce entry",
+            "component_findings": {
+                "conflict": "Workbook stores 5 in a percentage field; Diary appears to list Rs.5 fixed."
+            },
+            "limitations": "Do not interpret the workbook value as 5% without primary-source verification."
+        },
+        {
+            "codes": [
+                "39-02"
+            ],
+            "era": "source_conflict",
+            "source_filename": "Dairy 2024.txt \u2014 sanitized candidate pages 127-131",
+            "provision_locator": "DAIRY-2024:TEXT-PAGES:127-131:STAMP-DUTY-AND-REGISTRATION-FEES-AT-A-GLANCE",
+            "source_locator": "Dairy 2024 text page sequence 129, Partnership entry",
+            "relation_type": "AMOUNT_AND_CONDITION_CONFLICT",
+            "citation": "Dairy 2024, derived text page sequence 129, at-a-glance partnership entries",
+            "component_findings": {
+                "conflict": "Workbook says capital <=Rs.5,000 but lists Rs.500; Dairy appears to show Rs.100 for the <=Rs.5,000 case, with a separate value-based case."
+            },
+            "limitations": "Check exact partnership-capital wording and amount in the original Schedule I-A and amendment orders."
+        },
+        {
+            "codes": [
+                "40-01"
+            ],
+            "era": "source_conflict",
+            "source_filename": "Dairy 2024.txt \u2014 sanitized candidate pages 127-131",
+            "provision_locator": "DAIRY-2024:TEXT-PAGES:127-131:STAMP-DUTY-AND-REGISTRATION-FEES-AT-A-GLANCE",
+            "source_locator": "Dairy 2024 text page sequence 129, Dissolution of Partnership entry",
+            "relation_type": "CALCULATION_BASIS_CONFLICT",
+            "citation": "Dairy 2024, derived text page sequence 129, partnership dissolution entry",
+            "component_findings": {
+                "conflict": "Workbook lists fixed Rs.500; Diary describes a 3% market-value branch where immovable property is allotted."
+            },
+            "limitations": "Requires condition-aware classification; a single universal fixed amount is not supported."
+        },
+        {
+            "codes": [
+                "41-03"
+            ],
+            "era": "source_conflict",
+            "source_filename": "Dairy 2024.txt \u2014 sanitized candidate pages 127-131",
+            "provision_locator": "DAIRY-2024:TEXT-PAGES:127-131:STAMP-DUTY-AND-REGISTRATION-FEES-AT-A-GLANCE",
+            "source_locator": "Dairy 2024 text page sequence 130, Power for Consideration entry",
+            "relation_type": "RATE_CONFLICT",
+            "citation": "Dairy 2024, derived text page sequence 130, at-a-glance Power for Consideration entry",
+            "component_findings": {
+                "conflict": "Workbook says 5%; Diary entry appears to say 4% on consideration."
+            },
+            "limitations": "Verify the precise power category and any amendments in the original schedule/order."
+        },
+        {
+            "codes": [
+                "01-09",
+                "01-10",
+                "01-11"
+            ],
+            "era": "historical_candidate",
+            "source_filename": "Dairy 2010.pdf \u2014 sanitized historical legal-topic page candidates",
+            "provision_locator": "DAIRY-2010:PAGE-CANDIDATE:79",
+            "source_locator": "Dairy 2010 PDF sequence 79-81 (printed pages 154-156), G.O.Ms.No.1475/1481/568 Article 6(B) agreement summaries",
+            "relation_type": "SECONDARY_HISTORICAL_RATE_CANDIDATE",
+            "citation": "Dairy 2010, PDF sequences 79-81, printed pages 154-156; summaries of G.O.Ms.No.1475 dated 30-07-2005, G.O.Ms.No.1481 dated 30-11-2007, and G.O.Ms.No.568 dated 01-04-2008",
+            "component_findings": {
+                "stamp_duty": "Diary summarizes 1% for stated Article 6(B) agreements; caps and value-basis rules differ by GPA/non-GPA type and later orders; cap changes are stated effective 03-12-2007 and 08-04-2008."
+            },
+            "limitations": "Secondary summaries, not full orders. Workbook values for 01-09/01-10/01-11 do not directly align with a blanket 1% rule; code 01-02 has possession/article 47-A mapping issue. Do not assign historical periods from this summary without original orders and deed classification."
+        },
+        {
+            "codes": [
+                "01-02"
+            ],
+            "era": "historical_article_mapping_conflict",
+            "source_filename": "Dairy 2010.pdf \u2014 sanitized historical legal-topic page candidates",
+            "provision_locator": "DAIRY-2010:PAGE-CANDIDATE:40",
+            "source_locator": "Dairy 2010 PDF sequence 40, printed page 115, Article 47-A Explanation I",
+            "relation_type": "ARTICLE_MAPPING_CONFLICT",
+            "citation": "Dairy 2010, PDF sequence 40, printed page 115, Article 47-A Explanation I",
+            "component_findings": {
+                "conflict": "Text says an agreement followed by or evidencing delivery of possession is chargeable as a sale under Article 47-A; workbook maps Sale Agreement With Possession to Article 6B."
+            },
+            "limitations": "Requires legal review of exact instrument and applicable amendment; do not auto-classify by title alone."
+        },
+        {
+            "codes": [
+                "01-01"
+            ],
+            "era": "historical_area_rate_context",
+            "source_filename": "Dairy 2010.pdf \u2014 sanitized historical legal-topic page candidates",
+            "provision_locator": "DAIRY-2010:PAGE-CANDIDATE:40",
+            "source_locator": "Dairy 2010 PDF sequences 38-40, printed pages 113-115, Article 47-A table and G.O.Ms.No.1126/1127 notes",
+            "relation_type": "SECONDARY_HISTORICAL_RATE_CANDIDATE",
+            "citation": "Dairy 2010, PDF sequences 38-40, printed pages 113-115; G.O.Ms.No.1126/1127 dated 13-06-2005 and stated effective date 01-07-2005",
+            "component_findings": {
+                "stamp_duty": "Pre-September 2010 Article 47-A table is area-dependent; flat/apartment treatment includes a stated 5% reduction from 01-07-2005. G.O.Ms.No.394 later recites a 5% sale-deed rate from 01-09-2010."
+            },
+            "limitations": "Secondary table/transcription; area and subtype determine historical rate. The workbook does not carry 2010 area/subtype/deed applicability, and G.O.Ms.No.719 full text is not present in this source excerpt."
+        },
+        {
+            "codes": [
+                "04-01",
+                "03-01",
+                "05-12"
+            ],
+            "era": "historical_family_rate_candidate",
+            "source_filename": "Dairy 2010.pdf \u2014 sanitized historical legal-topic page candidates",
+            "provision_locator": "DAIRY-2010:PAGE-CANDIDATE:41",
+            "source_locator": "Dairy 2010 sequences 34, 38, and 41 (printed pp.109, 113, 116-117), G.O.Ms.No.1129 summary",
+            "relation_type": "SECONDARY_HISTORICAL_RATE_CANDIDATE",
+            "citation": "Dairy 2010, family partition/release/settlement order references, G.O.Ms.No.1129 dated 13-06-2005, stated effective 01-07-2005",
+            "component_findings": {
+                "stamp_duty": "Diary references 1% family rates for the cited partition, release, and settlement cases."
+            },
+            "limitations": "Secondary order summaries, not full operative orders. Workbook current values differ for settlement and release; exact family definition, effective window, and later changes are unresolved."
+        },
+        {
+            "codes": [
+                "02-08"
+            ],
+            "era": "historical_fee_conflict",
+            "source_filename": "Dairy 2010.pdf \u2014 sanitized historical legal-topic page candidates",
+            "provision_locator": "DAIRY-2010:PAGE-CANDIDATE:67",
+            "source_locator": "Dairy 2010 PDF sequence 67, printed page 142, Table of Fees Article 7 Deposit of Title Deeds",
+            "relation_type": "FEE_CAP_CONFLICT",
+            "citation": "Dairy 2010, PDF sequence 67, printed page 142, Article 7 fee-table candidate",
+            "component_findings": {
+                "stamp_duty": "0.5% subject to Rs.50,000 maximum",
+                "registration_fee": "0.1% subject to Rs.1,000 maximum"
+            },
+            "limitations": "The workbook registration-fee maximum is Rs.10,000; this historical table is secondary and must be compared with G.O.Ms.No.463 and later orders. It cannot establish the 2024/current cap."
+        },
+        {
+            "codes": [
+                "01-01",
+                "01-04",
+                "01-05",
+                "01-14",
+                "01-15",
+                "01-18",
+                "01-19",
+                "01-22"
+            ],
+            "era": "historical_transfer_duty_context",
+            "source_filename": "Dairy 2010.pdf \u2014 sanitized historical legal-topic page candidates",
+            "provision_locator": "DAIRY-2010:PAGE-CANDIDATE:72",
+            "source_locator": "Dairy 2010 PDF sequence 72, printed page 147, transfer-duty summary for areas/flats",
+            "relation_type": "LOCALITY_DEPENDENT_RATE_CAVEAT",
+            "citation": "Dairy 2010, PDF sequence 72, printed page 147, transfer-duty order summary",
+            "component_findings": {
+                "transfer_duty": "Diary lists different rates for Panchayat, Corporation, Selection/Special Grade Municipality, other municipalities, and flat/apartment cases; effective dates shown in the summary are generally 01-07-2005."
+            },
+            "limitations": "The table is a secondary historical digest. Workbook area_type and property_subtype are unspecified for these sale rows. No single 2010 transfer-duty percentage can be applied statewide."
+        }
+    ],
+    "temporal_events": [
+        {
+            "event_id": "GO-719-SALE-SD-2010",
+            "authority": "G.O.Ms.No.719, Revenue (Regn.I) Department",
+            "order_date": "2010-07-30",
+            "effective_from": "2010-09-01",
+            "effective_date_status": "EXPLICITLY_STATED_IN_G.O.394_RECITAL",
+            "legal_domain": "STAMP_DUTY",
+            "article_ref": "47-A",
+            "change": "Sale-deed stamp duty reduced from 7%/6% to 5%",
+            "source_filename": "2014REV_MS394.PDF",
+            "source_locator": "PDF page 1, lines 28-30",
+            "relation_type": "PRIMARY_ORDER_RECITAL",
+            "limitations": "G.O.719 itself is referenced but not supplied in full; recital does not detail geographic/subtype scope."
+        },
+        {
+            "event_id": "GO-162-SALE-SD-2013",
+            "authority": "G.O.Ms.No.162, Revenue (Regn.I) Department",
+            "order_date": "2013-03-30",
+            "effective_from": null,
+            "effective_date_status": "NOT_STATED_IN_G.O.394_RECITAL",
+            "legal_domain": "STAMP_DUTY",
+            "article_ref": "47-A",
+            "change": "Sale-deed stamp duty reduced from 5% to 4%",
+            "source_filename": "2014REV_MS394.PDF",
+            "source_locator": "PDF page 1, lines 30-32",
+            "relation_type": "PRIMARY_ORDER_RECITAL",
+            "limitations": "G.O.162 itself is not supplied; do not use order_date as effective_from without the operative order."
+        },
+        {
+            "event_id": "GO-394-SALE-SD-RESTORE-2014",
+            "authority": "G.O.Ms.No.394, Revenue (Regn.I) Department",
+            "order_date": "2014-11-26",
+            "effective_from": "2014-11-26",
+            "effective_date_status": "IMMEDIATE_EFFECT_EXPLICIT",
+            "legal_domain": "STAMP_DUTY",
+            "article_ref": "47-A",
+            "change": "Rescinds G.O.Ms.No.162 and restores the G.O.Ms.No.719 sale-deed stamp-duty level (5% per recital)",
+            "source_filename": "2014REV_MS394.PDF",
+            "source_locator": "PDF page 1, lines 34-53",
+            "relation_type": "PRIMARY_ORDER_OPERATIVE",
+            "limitations": "Does not provide transfer-duty or registration-fee rates; full prior order chain and later changes still need review."
+        },
+        {
+            "event_id": "GO-463-REG-FEE-TABLE-2013",
+            "authority": "G.O.Ms.No.463, Revenue (Regn.I) Department",
+            "order_date": "2013-08-17",
+            "effective_from": "2013-09-01",
+            "effective_date_status": "EXPLICITLY_STATED_IN_2024_REPRODUCTION",
+            "legal_domain": "REGISTRATION_FEE",
+            "article_ref": "SECTION_78_TABLE_OF_FEES",
+            "change": "Revised Table of Fees",
+            "source_filename": "Dairy 2024.txt \u2014 sanitized candidate pages 107-109",
+            "source_locator": "Dairy 2024 text page sequence 107, notification commencement paragraph",
+            "relation_type": "SECONDARY_REPRODUCTION_OF_ORDER",
+            "limitations": "The standalone primary G.O.463 gazette/order text is not present in the staged source set; later amendments must be reconciled."
+        },
+        {
+            "event_id": "GO-393-REG-FEE-SALE-2014",
+            "authority": "G.O.Ms.No.393, Revenue (Regn.I) Department",
+            "order_date": "2014-11-26",
+            "effective_from": null,
+            "effective_date_status": "ORDER_DATE_KNOWN_EFFECTIVE_DATE_NOT_EXPLICIT_IN_SUPPLIED_TEXT",
+            "legal_domain": "REGISTRATION_FEE",
+            "article_ref": "SECTION_78_TABLE_CATEGORY_1_ITEM_1",
+            "change": "Fee item changed from 0.5% to 1%",
+            "source_filename": "2014REV_MS393.PDF",
+            "source_locator": "PDF page 1, operative amendment",
+            "relation_type": "PRIMARY_ORDER_OPERATIVE",
+            "limitations": "Map Category (1), Sl.No.1 to deed codes using the reproduced Table of Fees; the supplied order text does not state an express commencement date."
+        },
+        {
+            "event_id": "GO-1475-ART6B-2005",
+            "authority": "G.O.Ms.No.1475, Revenue (Regn.I) Department",
+            "order_date": "2005-07-30",
+            "effective_from": "2005-08-01",
+            "effective_date_status": "SECONDARY_DIARY_SUMMARY",
+            "legal_domain": "STAMP_DUTY",
+            "article_ref": "6-B",
+            "change": "Diary summarizes 1% agreement duty with distinct caps for GPA/non-GPA cases",
+            "source_filename": "Dairy 2010.pdf \u2014 sanitized historical legal-topic page candidates",
+            "source_locator": "PDF sequences 79-81, printed pp.154-156",
+            "relation_type": "SECONDARY_ORDER_DIGEST",
+            "limitations": "Full G.O.1475 not supplied; caps and bases differ by instrument subtype."
+        },
+        {
+            "event_id": "GO-1481-ART6B-2007",
+            "authority": "G.O.Ms.No.1481, Revenue (Regn.I) Department",
+            "order_date": "2007-11-30",
+            "effective_from": "2007-12-03",
+            "effective_date_status": "SECONDARY_DIARY_SUMMARY",
+            "legal_domain": "STAMP_DUTY",
+            "article_ref": "6-B",
+            "change": "Diary summarizes 1% GPA-case basis and removal of stated cap",
+            "source_filename": "Dairy 2010.pdf \u2014 sanitized historical legal-topic page candidates",
+            "source_locator": "PDF sequences 79-81, printed pp.154-156",
+            "relation_type": "SECONDARY_ORDER_DIGEST",
+            "limitations": "Full G.O.1481 not supplied; verify basis and scope from operative order."
+        },
+        {
+            "event_id": "GO-568-ART6B-2008",
+            "authority": "G.O.Ms.No.568, Revenue (Regn.I) Department",
+            "order_date": "2008-04-01",
+            "effective_from": "2008-04-08",
+            "effective_date_status": "SECONDARY_DIARY_SUMMARY",
+            "legal_domain": "STAMP_DUTY",
+            "article_ref": "6-B",
+            "change": "Diary summarizes removal of Rs.20,000 cap for stated non-GPA cases",
+            "source_filename": "Dairy 2010.pdf \u2014 sanitized historical legal-topic page candidates",
+            "source_locator": "PDF sequences 79-81, printed pp.154-156",
+            "relation_type": "SECONDARY_ORDER_DIGEST",
+            "limitations": "Full G.O.568 not supplied; verify categories and commencement from operative order."
+        },
+        {
+            "event_id": "GO-1126-1127-ARTICLE47A-2005",
+            "authority": "G.O.Ms.No.1126 and G.O.Ms.No.1127, Revenue (Regn.I) Department",
+            "order_date": "2005-06-13",
+            "effective_from": "2005-07-01",
+            "effective_date_status": "SECONDARY_DIARY_SUMMARY",
+            "legal_domain": "STAMP_DUTY",
+            "article_ref": "47-A",
+            "change": "Diary reproduces area-dependent sale rates and a 5% flat/apartment reduction",
+            "source_filename": "Dairy 2010.pdf \u2014 sanitized historical legal-topic page candidates",
+            "source_locator": "PDF sequences 38-40, printed pp.113-115",
+            "relation_type": "SECONDARY_ORDER_DIGEST",
+            "limitations": "Rate depends on area and property subtype; get operative orders and visually verify the reproduced table."
+        },
+        {
+            "event_id": "GO-1129-FAMILY-RATES-2005",
+            "authority": "G.O.Ms.No.1129, Revenue Department",
+            "order_date": "2005-06-13",
+            "effective_from": "2005-07-01",
+            "effective_date_status": "SECONDARY_DIARY_SUMMARY",
+            "legal_domain": "STAMP_DUTY",
+            "article_ref": "40/46/49 family cases",
+            "change": "Diary references 1% family rates for specified partition, release, and settlement cases",
+            "source_filename": "Dairy 2010.pdf \u2014 sanitized historical legal-topic page candidates",
+            "source_locator": "PDF sequences 34, 38, 41; printed pp.109, 113, 116-117",
+            "relation_type": "SECONDARY_ORDER_DIGEST",
+            "limitations": "Secondary citation and digest only; family definition, complete scope, and later amendments require review."
+        },
+        {
+            "event_id": "TRANSFER-DUTY-LOCAL-ORDERS-2005",
+            "authority": "G.O.Ms.No.239 and G.O.Ms.No.622-625 (local-body orders)",
+            "order_date": null,
+            "effective_from": "2005-07-01",
+            "effective_date_status": "SECONDARY_DIARY_SUMMARY",
+            "legal_domain": "TRANSFER_DUTY",
+            "article_ref": "AREA_AND_PROPERTY_SUBTYPE_DEPENDENT",
+            "change": "Different transfer-duty rates for Panchayat, Corporation, Selection/Special Grade Municipality, other municipalities, and flat/apartment cases",
+            "source_filename": "Dairy 2010.pdf \u2014 sanitized historical legal-topic page candidates",
+            "source_locator": "PDF sequence 72, printed p.147",
+            "relation_type": "SECONDARY_ORDER_DIGEST",
+            "limitations": "The digest is secondary and workbook rows do not specify adequate area/subtype; never apply one statewide transfer-duty value."
+        }
+    ]
+}

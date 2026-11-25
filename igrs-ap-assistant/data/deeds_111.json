@@ -541,51 +541,51 @@
   },
   {
     "code": "03_01",
-    "classification": "SETTLEMENT",
-    "type": "Settlement in f/o family member",
+    "classification": "GIFT",
+    "type": "Gift",
+    "book": 1,
+    "sd": "5",
+    "td": "1.5",
+    "rf": "0.5",
+    "rf_min": "1000",
+    "rf_max": "10000",
+    "article": "29"
+  },
+  {
+    "code": "03_02",
+    "classification": "GIFT SETTLEMENT",
+    "type": "Gift Settlement in F/O Family Member",
     "book": 1,
     "sd": "2",
     "td": "0",
     "rf": "0.5",
     "rf_min": "1000",
     "rf_max": "10000",
-    "article": "49"
+    "article": "49-A"
   },
   {
-    "code": "03_02",
-    "classification": "SETTLEMENT",
-    "type": "Settlement in f/o others",
+    "code": "03_03",
+    "classification": "GIFT SETTLEMENT",
+    "type": "Gift Settlement in F/O Others",
     "book": 1,
     "sd": "3",
     "td": "0",
     "rf": "0.5",
     "rf_min": "1000",
     "rf_max": "10000",
-    "article": "49"
+    "article": "49-A"
   },
   {
-    "code": "03_03",
-    "classification": "SETTLEMENT",
-    "type": "Settlement for Charitable/religious purposes",
+    "code": "03_04",
+    "classification": "GIFT SETTLEMENT",
+    "type": "Gift Settlement for Charitable/Religious Purposes",
     "book": 1,
     "sd": "1.5",
     "td": "0",
     "rf": "0.5",
     "rf_min": "1000",
     "rf_max": "10000",
-    "article": "49"
-  },
-  {
-    "code": "03_04",
-    "classification": "SETTLEMENT",
-    "type": "Settlement in f/o Local bodies/Govt",
-    "book": 1,
-    "sd": "0",
-    "td": "0",
-    "rf": "0.5",
-    "rf_min": "1000",
-    "rf_max": "10000",
-    "article": "49"
+    "article": "49-A"
   },
   {
     "code": "03_05",
@@ -710,9 +710,9 @@
   {
     "code": "04_01",
     "classification": "PARTITION",
-    "type": "Partition among Family Members",
+    "type": "Partition among Others",
     "book": 1,
-    "sd": "1",
+    "sd": "2",
     "td": "0",
     "rf": "0",
     "rf_min": "1000",
@@ -722,9 +722,9 @@
   {
     "code": "04_02",
     "classification": "PARTITION",
-    "type": "Partition among Others",
+    "type": "Partition among Family Members",
     "book": 1,
-    "sd": "2",
+    "sd": "1",
     "td": "0",
     "rf": "0",
     "rf_min": "1000",

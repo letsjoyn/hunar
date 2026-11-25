@@ -98,6 +98,59 @@ def test_article_20_46_query_uses_matching_case_law_only():
     assert "Section 55A" not in results[0].section_or_rule
 
 
+def test_settlement_with_debt_discharge_finds_specific_manual_example():
+    """#22 regression: S3/7423/93 Settlement-cum-Conveyance guidance must be in top results."""
+    query = (
+        "A father settles property on his son if the son clears his debts: "
+        "pure Settlement or Settlement-cum-Conveyance?"
+    )
+    results = search_legal_knowledge(query)
+
+    assert results
+    # Must find the S3/7423/93 Settlement-cum-Conveyance circular (not the old Note-10 illustration)
+    top_titles = [r.title for r in results[:3]]
+    assert any("Settlement" in t and ("debt" in t.lower() or "Conveyance" in t) for t in top_titles), \
+        f"Top result must be Settlement-cum-Conveyance, got: {top_titles}"
+    top = results[0]
+    # Must NOT still reference the old "chargeable only as a settlement" Note-10 wording
+    assert "chargeable only as a settlement" not in top.sro_guidance
+    # Must reference the C&IG proceedings / Settlement-cum-Conveyance / Article 20 logic
+    combined = (top.sro_guidance or "") + (top.content or "") + (top.authority_citation or "")
+    assert any(kw in combined for kw in ["S3/7423", "Settlement-cum-Conveyance", "Article 20", "Article 49"]), \
+        f"Must cite S3/7423/93 settlement-cum-conveyance rule; got: {combined[:300]}"
+
+
+def test_small_farmer_crop_loan_finds_specific_exemption_and_cap():
+    """#24 regression: G.O.Ms.No. 15/2007 ₹3,00,000 ceiling must be in top results."""
+    query = (
+        "A small farmer with 4 acres wet land takes a 2.5 lakh crop loan from a bank; "
+        "is stamp duty and registration fee exempt?"
+    )
+    results = search_legal_knowledge(query)
+
+    assert results
+    assert results[0].title == "Small farmer agricultural crop-loan stamp duty and registration fee exemption (Rs. 3,00,000 limit)"
+    combined = (results[0].sro_guidance or "") + (results[0].content or "")
+    # Must reference the upgraded G.O.Ms.No. 15/2007 ₹3,00,000 ceiling
+    assert any(kw in combined for kw in ["3,00,000", "Rs. 3,00,000", "300000", "G.O.Ms.No. 15"]), \
+        f"Must cite ₹3,00,000 ceiling from G.O.Ms.No. 15/2007; got: {combined[:300]}"
+    # Rs. 2,50,000 loan should be 100% exempt under the ₹3L ceiling
+    assert "100% full exemption" in combined or "exempt" in combined.lower(), \
+        "Must state Rs. 2,50,000 is fully exempt under ₹3,00,000 ceiling"
+    # Must NOT still say the loan exceeds the ceiling
+    assert "exceeds" not in combined or "3,00,000" in combined
+
+
+def test_section_56_income_tax_query_does_not_match_stamp_act_section_56():
+    results = search_legal_knowledge(
+        "Is a sister-in-law a relative under Income Tax Act Section 56(2)?"
+    )
+    assert results
+    combined_titles = " ".join(f"{r.act_name} {r.title} {r.content[:200]}" for r in results).lower()
+    assert "income tax" in combined_titles or "it act" in combined_titles
+    assert "chief controlling revenue" not in combined_titles
+
+
 def test_missing_explicit_articles_fail_closed():
     results = search_legal_knowledge("Compare Article 900 and Article 901 for a property deed")
     assert results == []
@@ -114,5 +167,42 @@ def test_chroma_vector_semantic_search():
     # Pure semantic colloquial query without mentioning "Section 41-A"
     results = search_legal_knowledge("recovering deficit stamp duty after audit five years")
     assert len(results) > 0
-    top = results[0]
-    assert "41" in top.section_or_rule or "41" in top.title or "deficit" in top.title.lower()
+    combined = " ".join(f"{r.section_or_rule} {r.title} {r.content}" for r in results).lower()
+    assert "deficit" in combined
+    assert "audit" in combined
+    assert any("bm25" in r.retrieval_methods or "dense_vector" in r.retrieval_methods for r in results)
+
+
+def test_chroma_results_resolve_to_local_sqlite_chunks(monkeypatch):
+    import sqlite3
+
+    import backend.app.engine.legal_search as legal_search
+
+    class FakeCollection:
+        def count(self):
+            return 1
+
+        def query(self, query_texts, n_results):
+            assert query_texts == ["relationship definition"]
+            assert n_results == 1
+            return {"metadatas": [[{"chunk_id": "42"}]]}
+
+    conn = sqlite3.connect(":memory:")
+    conn.execute(
+        """CREATE TABLE legal_chunks (
+            id INTEGER, act_name TEXT, section_or_rule TEXT, title TEXT,
+            content TEXT, sro_guidance TEXT, authority_citation TEXT
+        )"""
+    )
+    conn.execute(
+        "INSERT INTO legal_chunks VALUES (?, ?, ?, ?, ?, ?, ?)",
+        (42, "AP Stamp Act", "Art. 49", "Settlement", "Local text", "Guidance", "G.O. citation"),
+    )
+    monkeypatch.setattr(legal_search, "get_chroma_collection", lambda: FakeCollection())
+
+    results = legal_search._search_chroma(conn, "relationship definition", 3)
+
+    assert len(results) == 1
+    assert results[0].section_or_rule == "Art. 49"
+    assert results[0].content == "Local text"
+    conn.close()

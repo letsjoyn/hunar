@@ -22,7 +22,9 @@ py -3.11 -m venv .venv311
 python -m pip install -r requirements.txt
 $env:APP_ENV = "development"
 $env:DATABASE_URL = "sqlite:///./igrs_ap_local.db"
-$env:ALLOW_EXTERNAL_LLM = "false"
+$env:ALLOW_EXTERNAL_LLM = "true"
+# Set GEMINI_API_KEY in your shell before enabling Gemini.
+python -m pip install -r requirements-ai.txt
 python -m uvicorn backend.app.main:app --reload --host 127.0.0.1 --port 8000
 ```
 
@@ -41,6 +43,47 @@ To run the test suite:
 python -m pytest backend/tests -q
 ```
 
+## Stage 7 local hybrid legal search
+
+Stage 7 builds a separate, local index from provision-level records in
+`data/source_staging.db`. It writes `data/stage7_hybrid_rag.db` and a manifest;
+it does not overwrite `data/legal_knowledge.db`, the calculator DB, or the
+existing Chroma store. Rebuild from this project directory with:
+
+```powershell
+python scripts/build_stage7_hybrid_rag.py
+```
+
+By default, retrieval combines SQLite FTS5 BM25 with offline
+512-dimensional hashed word/character vectors using reciprocal-rank fusion.
+This is a reproducible local vector baseline, **not a pretrained semantic
+model**: it does not provide translation or deep semantic equivalence. An
+optional pre-cached local sentence-transformers model can be used consistently
+for both indexing and queries:
+
+```powershell
+python scripts/build_stage7_hybrid_rag.py --embedding-model "D:\models\your-cached-model"
+```
+
+Install `requirements-ai.txt` and ensure the model files are already available
+locally before using that option. The builder sets local-only loading; it does
+not download a model or send source text to an embedding service. Rebuild the
+index with the same model to switch embedding backends. If the configured local
+model is later unavailable, legal search falls back to BM25 keyword retrieval
+rather than failing or contacting a remote service.
+
+Results preserve document/provision review, authority, extraction, privacy,
+source-page, and effective-date metadata. Pending and OCR-derived records
+remain explicitly unverified and are never promoted to calculator rates.
+Non-legal personal-content records, records matching email/phone/ID patterns,
+and recognized personal diary/contact/identity-form pages are excluded from
+the index.
+
+The older `build_full_legal_rag.py` / `build_chroma_vector_db.py` path is a
+legacy prototype indexer; the Chroma builder deletes and recreates its legacy
+collection. It is not used to rebuild the Stage 7 index. Do not send raw
+personal/internal source text to external services.
+
 ## Optional local Docker run
 
 Docker Compose binds the web app and database to loopback only and uses
@@ -51,13 +94,17 @@ cd D:\gov\igrs-ap-assistant
 docker compose up --build
 ```
 
-Then open <http://127.0.0.1:8000>. To use a Gemini API key, set
-`GEMINI_API_KEY` in the shell before starting Compose. Chat falls back to the
-local deterministic prototype if the key is absent. For smaller installs, the
-base requirements omit optional AI/indexing packages; install them separately
-with `python -m pip install -r requirements-ai.txt`. External Gemini calls are
-opt-in only: set `ALLOW_EXTERNAL_LLM=true` as well as `GEMINI_API_KEY`; do not
-enable this for sensitive department or citizen data without approval.
+Then open <http://127.0.0.1:8000>. Chat uses Gemini when the optional SDK,
+`GEMINI_API_KEY`, and `ALLOW_EXTERNAL_LLM=true` are all configured; otherwise it
+falls back to local-only parsing. Gemini first classifies the request, then the
+app searches its local legal index/rate database and runs deterministic
+calculations before Gemini writes the response. The user prompt and retrieved
+source excerpts are sent to Google's Gemini API, so do not enable this for
+sensitive department or citizen data without approval.
+
+For Docker Compose, provide `GEMINI_API_KEY` and set `ALLOW_EXTERNAL_LLM=true`
+in the environment (or Compose `.env`) before starting. The optional Gemini,
+Chroma, and indexing dependencies are in `requirements-ai.txt`.
 
 ## What currently works
 
@@ -67,9 +114,32 @@ enable this for sensitive department or citizen data without approval.
 - Building-value, delay-fine, and area-conversion endpoints.
 - Local document search against the SQLite/Chroma indexes when those indexes
   are available.
-- A draft/approval route for rate changes. Local development omits token
-  enforcement; set `ADMIN_API_TOKEN` to exercise token-protected admin routes.
+- Draft and reviewer approval routes for runtime rate rows. The bulk approval
+  routes always require `ADMIN_API_TOKEN`, even in local development.
 - Automated API/calculator tests.
+
+### Batch review of runtime rates
+
+The reviewer workflow is deliberately separate from the Stage 6 reconciliation
+CSV. It does not import or approve `data/stage6_rate_reconciliation.csv` or
+`data/stage6_actionable_review_queue.csv`.
+
+1. Configure `ADMIN_API_TOKEN` and use an authorized reviewer account/process.
+2. Submit pending runtime `rate_ids` to
+   `POST /api/admin/rates/bulk-approval-preview` with `x-admin-token`. Review
+   every returned field, blocker, source, and fingerprint against the cited
+   authoritative document.
+3. Submit only complete, non-overlapping rows to
+   `POST /api/admin/rates/bulk-approve`, providing a source document and page
+   reference for each row, its preview fingerprint, the exact reviewer
+   attestation, and `x-admin-token`.
+
+The endpoint rejects incomplete rows, stale fingerprints, and overlapping
+validity windows atomically; it never silently changes prior approved dates.
+It records the supplied reviewer attestation but cannot independently verify
+legal correctness or reviewer identity. The current Stage 6 candidate rows are
+still `NOT_FOR_CALCULATION` and are not made eligible by this API. Production
+use still requires department identity/access controls and legal sign-off.
 
 A passing test means the code matched the test fixture. It does **not** mean
 that a rate, citation, legal interpretation, or production workflow is legally
@@ -81,8 +151,13 @@ correct.
   `PENDING_REVIEW`; none should be interpreted as officially approved by virtue
   of being present in the app.
 - The rate generator is a draft importer, not a source-verification system.
-- `data/raw/` currently contains only two 2014 G.O. PDFs. The source PDFs and
-  OCR text under `D:\gov\data` are not a complete official corpus.
+- `data/raw/` currently contains the 2014 G.O. PDFs and reviewed/sanitized
+  extracts. The Stage 7 corpus is source-cited but mostly pending review; the
+  2024/2010 diaries and older manuals are secondary compilations, not a complete
+  verified official corpus.
+- `data/stage6_rate_reconciliation.json` is a documentary crosswalk, not an
+  approved temporal rate database. Unresolved deed mappings and effective dates
+  are not used for calculations.
 - The pre-2005 rate rows were removed from the active seed file because this
   project has not verified them from a primary source. Requests for those dates
   should return `NOT_FOUND`.

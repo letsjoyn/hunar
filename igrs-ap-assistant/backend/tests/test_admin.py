@@ -15,6 +15,7 @@ from backend.app.db.seed_prohibited import seed_prohibited_properties
 from backend.app.core.config import SEEDS_DIR
 from sqlalchemy.pool import StaticPool
 from backend.app.api.calculator import get_session
+from backend.app.api import admin as admin_api
 
 # Test DB setup with StaticPool so all connections share the same in-memory database
 test_engine = create_engine(
@@ -87,6 +88,139 @@ def test_admin_add_new_rate_schedule():
     assert approval.json()["status"] == "APPROVED"
 
 
+def test_admin_bulk_rate_approval_requires_configured_token(monkeypatch):
+    monkeypatch.setattr(admin_api, "ADMIN_API_TOKEN", "")
+    response = client.post(
+        "/api/admin/rates/bulk-approval-preview",
+        json={"rate_ids": [1]},
+    )
+    assert response.status_code == 503
+    assert "ADMIN_API_TOKEN" in response.json()["detail"]
+
+
+def test_admin_bulk_rate_approval_preview_and_atomic_approval(monkeypatch):
+    monkeypatch.setattr(admin_api, "ADMIN_API_TOKEN", "review-token-for-test")
+    session = TestingSession()
+    rate = DutyRate(
+        instrument_code="BULK_TEST_DEED",
+        article_ref="Article 99",
+        area_type="ALL",
+        property_subtype="ALL",
+        calc_basis="MARKET_VALUE",
+        stamp_duty_type="PERCENT",
+        stamp_duty_value=Decimal("2"),
+        transfer_duty_pct=Decimal("0"),
+        reg_fee_type="PERCENT",
+        reg_fee_value=Decimal("0.5"),
+        effective_from=date(2027, 1, 1),
+        effective_to=date(2027, 12, 31),
+        authority_citation="Test official order citation",
+        verification_status="PENDING_REVIEW",
+    )
+    session.add(rate)
+    session.commit()
+    session.refresh(rate)
+    rate_id = rate.id
+    session.close()
+
+    headers = {"x-admin-token": "review-token-for-test"}
+    preview = client.post(
+        "/api/admin/rates/bulk-approval-preview",
+        json={"rate_ids": [rate_id]},
+        headers=headers,
+    )
+    assert preview.status_code == 200
+    preview_row = preview.json()["rows"][0]
+    assert preview_row["blockers"] == []
+
+    approval = client.post(
+        "/api/admin/rates/bulk-approve",
+        json={
+            "reviewed_by": "Authorized test reviewer",
+            "attestation": (
+                "I reviewed every listed rate against its cited authoritative source and approve its rate, dates, scope, calculation basis, and caps."
+            ),
+            "items": [{
+                "rate_id": rate_id,
+                "source_document": "Test official order.pdf",
+                "page_reference": "page 2, item 3",
+                "reviewed_fingerprint": preview_row["reviewed_fingerprint"],
+            }],
+        },
+        headers=headers,
+    )
+    assert approval.status_code == 200
+    assert approval.json()["approved_count"] == 1
+
+    check = TestingSession()
+    approved = check.query(DutyRate).filter(DutyRate.id == rate_id).one()
+    assert approved.verification_status == "VERIFIED"
+    assert "Authorized test reviewer" in approved.notes
+    check.delete(approved)
+    check.commit()
+    check.close()
+
+
+def test_admin_bulk_rate_approval_rejects_incomplete_candidate(monkeypatch):
+    monkeypatch.setattr(admin_api, "ADMIN_API_TOKEN", "review-token-for-test")
+    session = TestingSession()
+    rate = DutyRate(
+        instrument_code="BULK_BLOCKED_TEST",
+        article_ref="Article 99",
+        area_type="ALL",
+        property_subtype="ALL",
+        calc_basis="UNSPECIFIED",
+        stamp_duty_type="PERCENT",
+        stamp_duty_value=Decimal("2"),
+        transfer_duty_pct=Decimal("0"),
+        reg_fee_type="PERCENT",
+        reg_fee_value=Decimal("0.5"),
+        effective_from=date(2027, 1, 1),
+        effective_to=date(2027, 12, 31),
+        authority_citation="Test candidate citation",
+        verification_status="PENDING_REVIEW",
+    )
+    session.add(rate)
+    session.commit()
+    session.refresh(rate)
+    rate_id = rate.id
+    session.close()
+
+    headers = {"x-admin-token": "review-token-for-test"}
+    preview = client.post(
+        "/api/admin/rates/bulk-approval-preview",
+        json={"rate_ids": [rate_id]},
+        headers=headers,
+    )
+    assert preview.status_code == 200
+    row = preview.json()["rows"][0]
+    assert "missing or unsupported calculation basis" in row["blockers"]
+
+    approval = client.post(
+        "/api/admin/rates/bulk-approve",
+        json={
+            "reviewed_by": "Authorized test reviewer",
+            "attestation": (
+                "I reviewed every listed rate against its cited authoritative source and approve its rate, dates, scope, calculation basis, and caps."
+            ),
+            "items": [{
+                "rate_id": rate_id,
+                "source_document": "Test official order.pdf",
+                "page_reference": "page 2, item 3",
+                "reviewed_fingerprint": row["reviewed_fingerprint"],
+            }],
+        },
+        headers=headers,
+    )
+    assert approval.status_code == 409
+    check = TestingSession()
+    blocked = check.query(DutyRate).filter(DutyRate.id == rate_id).one()
+    assert blocked.verification_status == "PENDING_REVIEW"
+    check.delete(blocked)
+    check.commit()
+    check.close()
+
+
 def test_admin_add_prohibited_survey():
     payload = {
         "district": "KRISHNA",
@@ -119,7 +253,8 @@ def test_system_status_endpoint():
     res = client.get("/api/system-status")
     assert res.status_code == 200
     status = res.json()
-    assert status["status"] == "LOCAL_DEMO"
-    assert status["production_ready"] is False
+    assert status["status"] == "OPERATIONAL"
+    assert status["production_ready"] is True
     assert status["chroma_vectors"] >= 0
-    assert "not been independently verified" in status["data_notice"]
+    assert status["verified_rates"] > 0
+    assert "VERIFIED" in status["data_notice"]

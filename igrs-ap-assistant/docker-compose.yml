@@ -13,7 +13,7 @@ services:
       - CARD_HMAC_SECRET=${CARD_HMAC_SECRET:-}
       - ADMIN_API_TOKEN=${ADMIN_API_TOKEN:-}
       - APP_ENV=development
-      - ALLOW_EXTERNAL_LLM=false
+      - ALLOW_EXTERNAL_LLM=${ALLOW_EXTERNAL_LLM:-false}
       - SRO_OFFICE_CODE=LOCAL-DEMO
     depends_on:
       db:

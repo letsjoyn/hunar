@@ -8,8 +8,10 @@ Allows SRO Administrators and Revenue Department Authorities to:
 """
 from datetime import date, timedelta
 from decimal import Decimal
+import hashlib
 import hmac
-from typing import Any, Dict, List, Optional
+import json
+from typing import Any, Dict, List, Literal, Optional, cast
 
 from fastapi import APIRouter, Depends, Header, HTTPException, Query
 from pydantic import BaseModel, Field
@@ -59,6 +61,25 @@ class RateApprovalRequest(BaseModel):
     reviewed_by: str = Field(..., min_length=2)
     source_document: str = Field(..., min_length=3)
     page_reference: str = Field(..., min_length=1)
+
+
+class BulkRatePreviewRequest(BaseModel):
+    rate_ids: List[int] = Field(..., min_length=1, max_length=500)
+
+
+class BulkRateApprovalItem(BaseModel):
+    rate_id: int = Field(..., ge=1)
+    source_document: str = Field(..., min_length=3)
+    page_reference: str = Field(..., min_length=1)
+    reviewed_fingerprint: str = Field(..., pattern=r"^[0-9a-f]{64}$")
+
+
+class BulkRateApprovalRequest(BaseModel):
+    reviewed_by: str = Field(..., min_length=2)
+    attestation: Literal[
+        "I reviewed every listed rate against its cited authoritative source and approve its rate, dates, scope, calculation basis, and caps."
+    ]
+    items: List[BulkRateApprovalItem] = Field(..., min_length=1, max_length=500)
 
 
 class NewProhibitedRequest(BaseModel):
@@ -176,6 +197,200 @@ def admin_approve_rate(
     }
 
 
+_RATE_FINGERPRINT_FIELDS = (
+    "instrument_code", "article_ref", "area_type", "property_subtype",
+    "duration_min_months", "duration_max_months", "calc_basis",
+    "stamp_duty_type", "stamp_duty_value", "stamp_duty_min", "stamp_duty_max",
+    "transfer_duty_pct", "reg_fee_type", "reg_fee_value", "reg_fee_min", "reg_fee_max",
+    "adjustable_sd_pct", "effective_from", "effective_to", "authority_citation",
+)
+_ALLOWED_CALC_BASES = {
+    "MAX_MV_CONSID", "MARKET_VALUE", "HIGHER_EXCHANGE_MV", "VSS",
+    "SEPARATED_SHARE", "LOAN_AMOUNT", "TOTAL_RENT", "AAR",
+}
+_ALLOWED_RATE_TYPES = {"PERCENT", "FIXED"}
+
+
+def _rate_fingerprint(rate: DutyRate) -> str:
+    rate_data = cast(Any, rate)
+    values = {}
+    for field_name in _RATE_FINGERPRINT_FIELDS:
+        value = getattr(rate_data, field_name)
+        values[field_name] = None if value is None else str(value)
+    encoded = json.dumps(values, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    return hashlib.sha256(encoded).hexdigest()
+
+
+def _rate_approval_blockers(rate: DutyRate) -> list[str]:
+    rate_data = cast(Any, rate)
+    blockers = []
+    if not rate_data.instrument_code.strip():
+        blockers.append("missing instrument code")
+    if not rate_data.article_ref.strip() or "UNSPECIFIED" in rate_data.article_ref.upper():
+        blockers.append("missing or unspecified article mapping")
+    if not rate_data.area_type.strip() or "UNSPECIFIED" in rate_data.area_type.upper():
+        blockers.append("missing or unspecified area scope")
+    if not rate_data.property_subtype.strip() or "UNSPECIFIED" in rate_data.property_subtype.upper():
+        blockers.append("missing or unspecified property subtype")
+    if rate_data.calc_basis not in _ALLOWED_CALC_BASES:
+        blockers.append("missing or unsupported calculation basis")
+    if rate_data.stamp_duty_type not in _ALLOWED_RATE_TYPES:
+        blockers.append("missing or unsupported stamp-duty type")
+    if rate_data.reg_fee_type not in _ALLOWED_RATE_TYPES:
+        blockers.append("missing or unsupported registration-fee type")
+    if rate_data.effective_from is None:
+        blockers.append("missing effective-from date")
+    if rate_data.effective_to is not None and rate_data.effective_to < rate_data.effective_from:
+        blockers.append("effective-to date precedes effective-from date")
+    if not rate_data.authority_citation.strip():
+        blockers.append("missing authority citation")
+    if rate_data.stamp_duty_value is None or rate_data.reg_fee_value is None:
+        blockers.append("missing duty or fee value")
+    if rate_data.verification_status != "PENDING_REVIEW":
+        blockers.append(f"status is {rate_data.verification_status}, not PENDING_REVIEW")
+    return blockers
+
+
+def _bulk_preview_rate(rate_id: int, rate: DutyRate) -> dict[str, Any]:
+    rate_data = cast(Any, rate)
+    return {
+        "rate_id": rate_id,
+        "instrument_code": rate_data.instrument_code,
+        "article_ref": rate_data.article_ref,
+        "area_type": rate_data.area_type,
+        "property_subtype": rate_data.property_subtype,
+        "calc_basis": rate_data.calc_basis,
+        "stamp_duty_type": rate_data.stamp_duty_type,
+        "stamp_duty_value": str(rate_data.stamp_duty_value),
+        "transfer_duty_pct": str(rate_data.transfer_duty_pct or 0),
+        "reg_fee_type": rate_data.reg_fee_type,
+        "reg_fee_value": str(rate_data.reg_fee_value),
+        "effective_from": str(rate_data.effective_from),
+        "effective_to": str(rate_data.effective_to) if rate_data.effective_to else None,
+        "authority_citation": rate_data.authority_citation,
+        "verification_status": rate_data.verification_status,
+        "blockers": _rate_approval_blockers(rate),
+        "reviewed_fingerprint": _rate_fingerprint(rate),
+    }
+
+
+def _require_bulk_admin_token(x_admin_token: Optional[str] = Header(default=None)) -> None:
+    """Bulk approvals always require an explicitly configured admin token."""
+    if not ADMIN_API_TOKEN:
+        raise HTTPException(status_code=503, detail="Bulk approval is disabled until ADMIN_API_TOKEN is configured")
+    if not x_admin_token or not hmac.compare_digest(x_admin_token, ADMIN_API_TOKEN):
+        raise HTTPException(status_code=401, detail="Invalid or missing admin token")
+
+
+@router.post("/rates/bulk-approval-preview")
+def admin_bulk_approval_preview(
+    req: BulkRatePreviewRequest,
+    session: Session = Depends(get_session),
+    _: None = Depends(_require_bulk_admin_token),
+):
+    """Return a read-only, fingerprinted review packet for pending runtime rates."""
+    if len(set(req.rate_ids)) != len(req.rate_ids):
+        raise HTTPException(status_code=422, detail="rate_ids must not contain duplicates")
+    rows = session.query(DutyRate).filter(DutyRate.id.in_(req.rate_ids)).all()
+    by_id: dict[int, DutyRate] = {}
+    for row in rows:
+        by_id[int(cast(Any, row).id)] = row
+    missing = [rate_id for rate_id in req.rate_ids if rate_id not in by_id]
+    if missing:
+        raise HTTPException(status_code=404, detail={"missing_rate_ids": missing})
+
+    return {
+        "status": "REVIEW_PREVIEW_ONLY",
+        "rows": [_bulk_preview_rate(rate_id, by_id[rate_id]) for rate_id in req.rate_ids],
+        "note": "Preview only. A human reviewer must verify each source and submit an approval attestation.",
+    }
+
+
+@router.post("/rates/bulk-approve")
+def admin_bulk_approve_rates(
+    req: BulkRateApprovalRequest,
+    session: Session = Depends(get_session),
+    _: None = Depends(_require_bulk_admin_token),
+):
+    """Atomically approve reviewed pending rows; reject any stale, incomplete, or overlapping batch."""
+    rate_ids = [item.rate_id for item in req.items]
+    if len(set(rate_ids)) != len(rate_ids):
+        raise HTTPException(status_code=422, detail="items must not contain duplicate rate_id values")
+    rows = session.query(DutyRate).filter(DutyRate.id.in_(rate_ids)).all()
+    by_id: dict[int, DutyRate] = {}
+    for row in rows:
+        by_id[int(cast(Any, row).id)] = row
+    missing = [rate_id for rate_id in rate_ids if rate_id not in by_id]
+    if missing:
+        raise HTTPException(status_code=404, detail={"missing_rate_ids": missing})
+
+    blockers = {}
+    for item in req.items:
+        rate = by_id[item.rate_id]
+        row_blockers = _rate_approval_blockers(rate)
+        if _rate_fingerprint(rate) != item.reviewed_fingerprint:
+            row_blockers.append("rate changed after review preview; regenerate the preview")
+        if row_blockers:
+            blockers[item.rate_id] = row_blockers
+    if blockers:
+        raise HTTPException(status_code=409, detail={"blocked_rates": blockers})
+
+    # Refuse overlapping windows; the batch action never silently changes prior approvals.
+    selected_ids = set(rate_ids)
+    proposed = [cast(Any, rate) for rate in by_id.values()]
+    for rate in proposed:
+        proposed_end = rate.effective_to or date.max
+        overlaps = session.query(DutyRate).filter(
+            DutyRate.id.notin_(selected_ids),
+            DutyRate.instrument_code == rate.instrument_code,
+            DutyRate.area_type == rate.area_type,
+            DutyRate.property_subtype == rate.property_subtype,
+            DutyRate.verification_status == "VERIFIED",
+            DutyRate.effective_from <= proposed_end,
+            or_(DutyRate.effective_to.is_(None), DutyRate.effective_to >= rate.effective_from),
+        ).first()
+        if overlaps:
+            raise HTTPException(
+                status_code=409,
+                detail={"rate_id": rate.id, "message": "Overlaps an already verified rate; resolve the dates first."},
+            )
+
+    for index, rate in enumerate(proposed):
+        rate_start = rate.effective_from
+        rate_end = rate.effective_to or date.max
+        for other in proposed[index + 1:]:
+            if (
+                rate.instrument_code == other.instrument_code
+                and rate.area_type == other.area_type
+                and rate.property_subtype == other.property_subtype
+                and rate_start <= (other.effective_to or date.max)
+                and other.effective_from <= rate_end
+            ):
+                raise HTTPException(
+                    status_code=409,
+                    detail={"rate_ids": [rate.id, other.id], "message": "The batch contains overlapping date windows."},
+                )
+
+    approved_on = date.today().isoformat()
+    for item in req.items:
+        rate = cast(Any, by_id[item.rate_id])
+        rate.verification_status = "VERIFIED"
+        rate.notes = (rate.notes or "") + (
+            f" [Bulk-reviewed by {req.reviewed_by} on {approved_on}; "
+            f"source {item.source_document}, page/reference {item.page_reference}; "
+            f"reviewed fingerprint {item.reviewed_fingerprint}]"
+        )
+    session.commit()
+    return {
+        "status": "APPROVED",
+        "reviewed_by": req.reviewed_by,
+        "approved_on": approved_on,
+        "approved_count": len(req.items),
+        "rate_ids": rate_ids,
+        "note": "Approval records the reviewer attestation; it does not independently validate the cited law.",
+    }
+
+
 @router.get("/rates")
 def admin_list_rates(
     instrument_code: Optional[str] = None,
@@ -255,3 +470,40 @@ def admin_get_audit_logs(
         }
         for s in slips
     ]
+
+
+class Stage6ImportApproveRequest(BaseModel):
+    reviewed_by: str = Field(..., min_length=2)
+    attestation: Literal[
+        "I reviewed every listed rate against its cited authoritative source and approve its rate, dates, scope, calculation basis, and caps."
+    ]
+    codes: Optional[List[str]] = None
+
+
+@router.get("/stage6/queue")
+def admin_stage6_queue(
+    only_pending: bool = Query(False),
+    session: Session = Depends(get_session),
+    _: None = Depends(require_admin_token),
+):
+    """Inspect Stage 6 staged_deed_rates paired with runtime verification status."""
+    from backend.app.db.stage6_bridge import list_stage6_queue
+
+    return list_stage6_queue(session, only_pending=only_pending)
+
+
+@router.post("/stage6/import-approve")
+def admin_stage6_import_approve(
+    req: Stage6ImportApproveRequest,
+    session: Session = Depends(get_session),
+    _: None = Depends(require_admin_token),
+):
+    """Promote Stage 6 staged_deed_rates into verified runtime DutyRate records."""
+    from backend.app.db.stage6_bridge import import_approve_stage6_rates
+
+    return import_approve_stage6_rates(
+        session,
+        reviewed_by=req.reviewed_by,
+        attestation=req.attestation,
+        codes=req.codes,
+    )

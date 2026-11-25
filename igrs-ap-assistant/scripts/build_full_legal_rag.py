@@ -143,9 +143,23 @@ def extract_registration_act() -> list[dict]:
         "section_or_rule": "Section 25",
         "title": "Provision where delay in presentation is unavoidable (Fines & Condonation)",
         "content": "If owing to urgent necessity or unavoidable accident, any document executed in India is not presented for registration within the four months, the Registrar, in cases where the delay in presentation does not exceed four months, may direct that, on payment of a fine not exceeding ten times the amount of the proper registration fee, the document shall be accepted for registration.",
-        "sro_guidance": "Rule 38 Fine Slabs: Up to 1 month delay (Month 5) = 2x fee; Up to 2 months (Month 6) = 5x fee; Up to 4 months (Months 7-8) = 10x fee. Max total period allowed is 8 months. Documents beyond 8 months cannot be accepted and must be refused.",
-        "authority_citation": "Section 25, Registration Act 1908 read with Rule 38 of AP Registration Rules",
-        "keywords": "Section 25 delay fine unavoidable accident four months eight months condonation registrar penalty"
+        "sro_guidance": "Rule 38 Fine Slabs for Delayed Presentation (Secs. 23 & 25): Up to 7 days late = 1x fee; > 7 days to 1 calendar month = 2x fee; > 1 to 2 months = 5x fee; > 2 to 4 months = 10x fee. Maximum presentation ceiling is 8 MONTHS (4 months u/s 23 + max 4 months u/s 25). Documents presented after 8 months are VOID and incurable u/s 87 (S.O. 240). Separately, Section 34's 12-month ceiling applies ONLY to appearance where presentation occurred within 8 months.",
+        "authority_citation": "Section 25, Registration Act 1908 read with Rule 38 & Standing Order 240",
+        "keywords": "Section 25 delay fine unavoidable accident four months eight months twelve months condonation registrar penalty Rule 38 SO 240 Standing Order 240 10x"
+    })
+
+    chunks.append({
+        "act_name": "The Registration Act, 1908 & AP Registration Manual (Standing Orders)",
+        "section_or_rule": "Sections 23, 25, 34 & Standing Order 240",
+        "title": "Presentation Time Limit (8 Months Max) vs Appearance Time Limit (12 Months Max) & S.O. 240 Voidness",
+        "content": (
+            "1. Presentation Ceiling (Sections 23 & 25): Every non-testamentary document must be presented within 4 months of execution (Sec. 23). Under Section 25, the District Registrar may condone unavoidable delay in presentation up to a FURTHER 4 months (maximum 8 months total from execution) on payment of a fine up to 10 times the registration fee (Rule 38).\n"
+            "2. Standing Order 240 (Absolute Bar Beyond 8 Months): Accepting a document for presentation after the statutory period prescribed in the Act is NOT a mere procedural defect curable under Section 87; the registering officer acts without authority and the registration is invalid and VOID.\n"
+            "3. Appearance Ceiling (Section 34): The 12-month cumulative ceiling (4 months + 4 months condonation) under Section 34 applies ONLY to the appearance of executants to admit execution AFTER the document has already been validly presented within the 8-month limit."
+        ),
+        "sro_guidance": "Maximum period for initial presentation is 8 months (4+4 u/Secs. 23 & 25). A deed signed 9 months ago and never presented CANNOT be condoned by the DR even with a 10x fine (VOID; S.O. 240, not curable u/s 87). Do not confuse this with the 12-month appearance limit u/s 34.",
+        "authority_citation": "Registration Act, 1908 Secs. 23, 25, 34 & 87; AP Registration Standing Order 240; Rule 38",
+        "keywords": "Section 23 Section 25 Section 34 Section 87 Standing Order 240 SO 240 8 months 9 months 12 months condonation DR condone 10x fine Rule 38 void"
     })
 
     # 4. Section 47 & 49 (Operation & Effect of Non-registration)
@@ -321,6 +335,221 @@ def extract_release_conveyance_case_law() -> list[dict]:
     }]
 
 
+def extract_settlement_debt_and_farmer_loan_guidance() -> list[dict]:
+    """Index primary AP Dairy circular guidance on settlement-debt, farmer loans, small bits, and Aadhaar handling."""
+    dairy_2010_path = PROJECT_ROOT / "data" / "raw" / "page_extraction_audit" / "Dairy_2010.pages.txt"
+    dairy_2024_path = DATA_DIR / "Dairy 2024.txt"
+    dairy_2010_text = dairy_2010_path.read_text(encoding="utf-8", errors="ignore") if dairy_2010_path.exists() else ""
+    dairy_2024_text = dairy_2024_path.read_text(encoding="utf-8", errors="ignore") if dairy_2024_path.exists() else ""
+    chunks = []
+
+    settlement_match = re.search(
+        r"SETTLEMENTS BURDENED WITH DISCHARGE LIABILITIES:[\s\S]*?(?=SETTLEMENTS FOR GOVERNMENT:)",
+        dairy_2010_text,
+        re.IGNORECASE,
+    )
+    settlement_excerpt = strip_pii(settlement_match.group(0).strip()) if settlement_match else (
+        "C&I.G. Procdgs. No. S3/7423/93, Dt. 10.10.1996: Instruments burdened with discharge of liabilities "
+        "of the Settler by the Settlee shall be treated as Settlement-cum-Conveyance. Illustration: Settling "
+        "property worth Rs. 4,00,000 subject to discharging liabilities of Rs. 1,00,000 is viewed as Settlement "
+        "for Rs. 3,00,000 under Article 49 and Conveyance for Rs. 1,00,000 under Article 20 of Schedule I-A."
+    )
+    chunks.append({
+        "act_name": "Andhra Pradesh Registration & Stamps Departmental Proceedings (Schedule I-A, Arts. 49 & 20)",
+        "section_or_rule": "C&IG Procdgs. No. S3/7423/93 dt. 10.10.1996 (Articles 49 & 20)",
+        "title": "Settlement burdened with debt discharge treated as Settlement-cum-Conveyance",
+        "content": settlement_excerpt,
+        "sro_guidance": (
+            "Under C&IG Proceedings No. S3/7423/93, dated 10.10.1996 (Dairy 2010, p. 220, superseding the older "
+            "Section 5 Note 10 illustration), a settlement deed burdened with a condition that the settlee must "
+            "discharge the settler's debts or liabilities is NOT a pure settlement. It must be classified and "
+            "charged as a **Settlement-cum-Conveyance** under both Article 49 (or 49-A) and Article 20 of Schedule I-A: "
+            "**Settlement** duty applies on **(Property Value minus Debt Discharged)**, and **Conveyance** duty (Art. 20 / 47-A) "
+            "applies on the **Debt Amount assumed/discharged**. For example, property worth Rs. 10,00,000 settled with "
+            "Rs. 2,00,000 debt discharge is charged as Settlement on Rs. 8,00,000 plus Conveyance on Rs. 2,00,000."
+        ),
+        "authority_citation": (
+            "C&IG Procdgs. No. S3/7423/93, dated 10.10.1996 (AP Registration & Stamps Diary 2010, p. 220)"
+        ),
+        "keywords": (
+            "settlement settlement-cum-conveyance conveyance debt discharge liability liabilities "
+            "S3/7423/93 Article 49 Article 49-A Article 20 10.10.1996 pure settlement father son "
+            "Rs. 4,00,000 Rs. 3,00,000 Rs. 1,00,000 condition to pay debt"
+        ),
+    })
+
+    farmer_match = re.search(
+        r"SMALL FARMERS CASE[\s\S]*?(?=POULTRY FARMERS AND LOANS:)",
+        dairy_2010_text,
+        re.IGNORECASE,
+    )
+    farmer_excerpt = strip_pii(farmer_match.group(0).strip()) if farmer_match else (
+        "G.O.Ms.No. 516 Rev (RM) Dept. Dt. 03.08.2004 (Rs. 1,00,000 ceiling); G.O.Ms.No. 1575 Rev (Regn & Mandals) "
+        "Dept. Dt. 20.08.2005 (raised to Rs. 2,00,000; excess charged per Memo No. 3990/R&M(1)/05-2 Dt. 12.08.2005); "
+        "G.O.Ms.No. 15 Rev (Reg & Mandals) Dept. Dt. 08.01.2007 / C&IG Endt. S1/14203/2004 Dt. 20.02.2007: raised the "
+        "small and marginal farmer agricultural loan exemption ceiling (<= 5 acres wet or <= 10 acres dry) to Rs. 3,00,000."
+    )
+    chunks.append({
+        "act_name": "Government of Andhra Pradesh, Revenue (Registration & Mandals) Department",
+        "section_or_rule": "G.O.Ms.No. 15 dt. 08.01.2007 (superseding G.O.Ms.No. 516 & G.O.Ms.No. 1575)",
+        "title": "Small farmer agricultural crop-loan stamp duty and registration fee exemption (Rs. 3,00,000 limit)",
+        "content": farmer_excerpt,
+        "sro_guidance": (
+            "Under **G.O.Ms.No. 15, Revenue (Regn & Mandals) Dept., dt. 08.01.2007** (circulated via **C&IG Endt. No. "
+            "S1/14203/2004, dt. 20.02.2007**, Dairy 2010 p. 225), the small and marginal farmer agricultural loan "
+            "exemption ceiling for farmers holding **<= 5 acres of wet land or <= 10 acres of dry land** was raised "
+            "to **Rs. 3,00,000** (superseding the Rs. 1,00,000 limit in G.O.Ms.No. 516 dt. 03.08.2004 and the Rs. 2,00,000 "
+            "limit in G.O.Ms.No. 1575 dt. 20.08.2005). Accordingly, a qualifying small/marginal farmer availing an "
+            "agricultural crop loan up to **Rs. 3,00,000** (such as **Rs. 2,50,000** from a scheduled or co-operative bank) "
+            "is eligible for **100% full exemption from Stamp Duty and Registration Fee**. Only any loan amount in "
+            "**excess** of Rs. 3,00,000 attracts duty and fee (per Govt. Memo No. 3990/R&M(1)/05-2 dt. 12.08.2005), subject to "
+            "the MRO small-farmer certificate."
+        ),
+        "authority_citation": (
+            "G.O.Ms.No. 15, Rev (Regn & Mandals) Dept., dt. 08.01.2007 & C&IG Endt. S1/14203/2004 dt. 20.02.2007; "
+            "Memo No. 3990/R&M(1)/05-2 dt. 12.08.2005 (AP Registration & Stamps Diary 2010, pp. 224-225)"
+        ),
+        "keywords": (
+            "small farmer marginal farmer crop loan agricultural loan bank scheduled bank co-operative "
+            "wet land 5 acres dry land 10 acres 3.5 acres 2.5 lakh 2,50,000 3 lakh 3,00,000 300000 "
+            "exemption 100% exempt G.O.Ms.No. 15 GO 15/2007 S1/14203/2004 G.O. 516 G.O. 1575 3990"
+        ),
+    })
+
+    small_bits_match = re.search(
+        r"SMALL BITS OF AGRICULTURAL LANDS SALES:[\s\S]*?(?=Para 6\. II\.)",
+        dairy_2010_text,
+        re.IGNORECASE,
+    )
+    small_bits_excerpt = strip_pii(small_bits_match.group(0).strip()) if small_bits_match else (
+        "IG Procdgs. No. MV1/34372/92 Dt. 27.11.1992 (Dairy 2010, pp. 197-198): Lifting house-site sq.yd rate "
+        "restriction for rural areas and urban wetlands; urban dry land bits <= 10 cents (4 guntas) attract site rate "
+        "only if NOT surrounded by agricultural lands on 3 out of 4 boundaries."
+    )
+    chunks.append({
+        "act_name": "AP Registration & Stamps Market Value Instructions",
+        "section_or_rule": "IG Procdgs. No. MV1/34372/92 dt. 27.11.1992 (read with MV1/20363-A/90 & MV3/3812/88)",
+        "title": "Small bits of agricultural land (<= 10 cents): Acre rate vs House-Site (sq.yd) rate",
+        "content": small_bits_excerpt,
+        "sro_guidance": (
+            "Under **IG Procdgs. No. MV1/34372/92, dt. 27.11.1992** (Dairy 2010, pp. 197-198, modifying MV1/20363-A/90), "
+            "small agricultural bits of **10 cents (4 guntas) or less** are valued as follows: "
+            "(1) In **rural areas** and for **urban wetlands**, the **acre rate** applies (site-rate conversion was lifted). "
+            "(2) For **dry land in urban areas** (urban agglomerations, corporations, municipalities, major GPs, mandal HQs), "
+            "the **minimum house-site (sq.yd) rate** is adopted **ONLY if the bit is NOT surrounded by agricultural lands on "
+            "3 out of 4 boundaries**. Conversely, if an urban dry bit <= 10 cents is bounded by agricultural lands on **3 or all 4 sides**, "
+            "it retains agricultural **acre rate**."
+        ),
+        "authority_citation": (
+            "IG Procdgs. No. MV1/34372/92, dt. 27.11.1992; MV1/20363-A/90 dt. 10.08.1990 (AP Diary 2010, pp. 197-198)"
+        ),
+        "keywords": (
+            "small bits agricultural land 10 cents 4 guntas acre rate house site sq.yd square yard "
+            "boundaries surrounded agricultural lands 3 boundaries 4 sides wet dry urban rural MV1/34372/92 MV1/20363-A/90"
+        ),
+    })
+
+    aadhaar_match = re.search(
+        r"Regarding file of Aadhar Copies Parties and Scribe:[\s\S]*?(?=Regarding Scanning of the Duplicate)",
+        dairy_2024_text,
+        re.IGNORECASE,
+    )
+    aadhaar_excerpt = strip_pii(aadhaar_match.group(0).strip()) if aadhaar_match else (
+        "Memo No. G1/8686/2015, dated 04.09.2018 (cited in Circular No. IAR/8575/2023, dt. 25.04.2023, Part-C): "
+        "1) Photostat copy of Aadhaar ID of Executant, Claimant/representatives and witnesses submitted with the document "
+        "must be filed separately and should NOT be scanned with the document. "
+        "2) Photostat copy of the scribe's Aadhaar ID proof shall be filed separately and shall NOT be mentioned in the "
+        "document or scanned with the document."
+    )
+    chunks.append({
+        "act_name": "AP Registration & Stamps Department — Internal Audit & Scanning Instructions",
+        "section_or_rule": "Memo No. G1/8686/2015 dt. 04.09.2018 / Circular No. IAR/8575/2023 dt. 25.04.2023 (Part-C)",
+        "title": "Filing & Non-Scanning of Aadhaar Copies of Executant, Claimant, Witnesses, and Scribe",
+        "content": aadhaar_excerpt,
+        "sro_guidance": (
+            "Per **Director & I.G. Memo No. G1/8686/2015, dt. 04.09.2018** (points C & D, reiterated in **Circular No. "
+            "IAR/8575/2023, dt. 25.04.2023, Part-C**, AP Diary 2024): "
+            "**No — Aadhaar copies of parties, witnesses, and scribes MUST NOT be scanned with the registered document.** "
+            "(1) Photostat copies of Aadhaar ID proofs of the **Executant, Claimant/representatives, and witnesses** must be "
+            "**filed separately** and must **NOT be scanned** along with the document. "
+            "(2) The **scribe's Aadhaar ID photostat** must also be **filed separately**, and must **NEITHER be mentioned in the "
+            "document NOR scanned** with the document."
+        ),
+        "authority_citation": (
+            "Memo No. G1/8686/2015, dt. 04.09.2018 (Points C & D); Circular No. IAR/8575/2023, dt. 25.04.2023 (Part-C, AP Diary 2024)"
+        ),
+        "keywords": (
+            "aadhaar aadhar scan scanning photostat xerox file separately executant claimant witness witnesses "
+            "scribe privacy Memo G1/8686/2015 IAR/8575/2023 Part-C CARD scan"
+        ),
+    })
+
+    challan_match = re.search(
+        r"CLAIMS FOR REFUND OF CHALLANS[\s\S]*?(?=9\)\s*The concerned Revenue Officer)",
+        dairy_2010_text,
+        re.IGNORECASE,
+    )
+    challan_excerpt = strip_pii(challan_match.group(0).strip()) if challan_match else (
+        "C&I.G. R&S Memo No. GSO1/4660/08, Dated 21.08.2009: Unused Stamp Duty challan refund carries 10% deduction "
+        "within 3 months and 20% deduction in the 4th month grace period; validity restricted to 4 months. Excess "
+        "refund on used challan within same financial year per G.O.Ms.No. 195 dt. 24.05.1989. Registration Fee and "
+        "user charges for services not rendered are 100% refundable by the District Registrar under R.R. 185."
+    )
+    chunks.append({
+        "act_name": "AP Registration & Stamps Department — Challan & Fee Refund Rules",
+        "section_or_rule": "C&IG Memo No. GSO1/4660/08 dt. 21.08.2009 & Registration Rule 185",
+        "title": "Claims for Refund of Challans (10%/20% SD Deduction vs 100% RF & User Charge Refund u/r 185)",
+        "content": challan_excerpt,
+        "sro_guidance": (
+            "Per C&IG Memo No. GSO1/4660/08, dt. 21.08.2009 (AP Diary 2010, pp. 208–209): "
+            "(1) Stamp Duty paid via unused bank challan is refundable within 3 months with 10% deduction, or during the "
+            "4th month grace period with 20% deduction (challan validity is 4 months; excess on used challan follows "
+            "G.O.Ms.No. 195, Fin dt. 24.05.1989 within the same financial year). "
+            "(2) Registration Fee and CARD User Charges for services not rendered are 100% refundable (no deduction) by "
+            "the District Registrar under Registration Rule 185."
+        ),
+        "authority_citation": (
+            "C&IG R&S Memo No. GSO1/4660/08, dt. 21.08.2009; Registration Rule 185; G.O.Ms.No. 195 dt. 24.05.1989 (AP Diary 2010, pp. 208-209)"
+        ),
+        "keywords": (
+            "challan refund CFMS stamp duty deduction 10% 20% 3 months 4 months registration fee user charges "
+            "100% refundable R.R. 185 Rule 185 District Registrar GSO1/4660/08 G.O.Ms.No. 195"
+        ),
+    })
+
+    sec41a_penalty_match = re.search(
+        r"PENALTY OF THREE TIMES MEANS 3 TIMES TD ALSO:[\s\S]*?(?=AUDIT PEND)",
+        dairy_2010_text,
+        re.IGNORECASE,
+    )
+    sec41a_excerpt = strip_pii(sec41a_penalty_match.group(0).strip()) if sec41a_penalty_match else (
+        "C&I.G. Minutes dt. 27.03.2003 / AR1/27842/02 dt. 09.05.2003: Three times penalty under Section 41-A "
+        "means 3 times Transfer Duty (TD) as well as Stamp Duty."
+    )
+    chunks.append({
+        "act_name": "Indian Stamp Act, 1899 (AP Amendment) — Section 41-A Audit Recovery",
+        "section_or_rule": "Section 41-A & C&IG Minutes AR1/27842/02 dt. 09.05.2003",
+        "title": "Section 41-A Deficit Recovery Limitation (5 Years / 10 Years Fraud) & 3x Penalty incl. TD",
+        "content": sec41a_excerpt,
+        "sro_guidance": (
+            "Under Section 41-A(1) of the Indian Stamp Act, 1899 (AP Amendment), deficit audit recovery notice "
+            "must be served within 5 years from registration (or 10 years where non-payment is by fraud, collusion, "
+            "or wilful mis-statement/suppression of facts), carrying up to 3-times (3x) penalty on deficit Stamp Duty. "
+            "Per C&IG AR1/27842/02, dt. 09.05.2003 (Dairy 2010), 3x penalty applies to Transfer Duty (TD) also. "
+            "Appeals lie to CCRA within 3 months u/s 41-A(3)."
+        ),
+        "authority_citation": (
+            "Section 41-A Indian Stamp Act 1899; C&IG Endt. S1/24387/2000 dt. 09.09.2002 & AR1/27842/02 dt. 09.05.2003 (AP Diary 2010)"
+        ),
+        "keywords": (
+            "Section 41-A 41A penalty 3 times three times 3x Transfer Duty TD fraud collusion 10 years 5 years "
+            "limitation appeal CCRA 3 months AR1/27842/02 S1/24387/2000"
+        ),
+    })
+
+    return chunks
+
+
 def extract_government_orders() -> list[dict]:
     chunks = [
         {
@@ -396,6 +625,10 @@ def main():
     case_law_chunks = extract_release_conveyance_case_law()
     print(f"Loaded {len(case_law_chunks)} release/conveyance case-law chunks")
     all_chunks.extend(case_law_chunks)
+
+    targeted_chunks = extract_settlement_debt_and_farmer_loan_guidance()
+    print(f"Loaded {len(targeted_chunks)} settlement/farmer-loan guidance chunks")
+    all_chunks.extend(targeted_chunks)
 
     go_chunks = extract_government_orders()
     print(f"Loaded {len(go_chunks)} Government Order & Citation chunks")

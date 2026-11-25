@@ -11,7 +11,7 @@ from typing import Optional
 
 from sqlalchemy import (
     Boolean, Column, Date, DateTime, Index, Integer, Numeric, String, Text,
-    create_engine, event,
+    create_engine, event, func,
 )
 from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
 
@@ -43,16 +43,32 @@ class DutyRate(Base):
     reg_fee_value = Column(Numeric(12, 4), nullable=False)
     reg_fee_min = Column(Numeric(12, 2), nullable=True)
     reg_fee_max = Column(Numeric(12, 2), nullable=True)
-    is_adjustable = Column(Boolean, default=False)
+    adjustable_sd_pct = Column(Numeric(6, 4), nullable=False, default=Decimal("0"))
     effective_from = Column(Date, nullable=False)
     effective_to = Column(Date, nullable=True)  # NULL = currently active
     authority_citation = Column(Text, nullable=False)
+    sd_authority = Column(Text, nullable=True)
+    td_authority = Column(Text, nullable=True)
+    rf_authority = Column(Text, nullable=True)
     verification_status = Column(String(20), default="PENDING_REVIEW")
     notes = Column(Text, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
 
+    @property
+    def is_adjustable(self) -> bool:
+        return (self.adjustable_sd_pct or Decimal("0")) > Decimal("0")
+
     __table_args__ = (
         Index("idx_duty_lookup", "instrument_code", "area_type", "effective_from", "effective_to"),
+        Index(
+            "uq_duty_rates_identity",
+            "instrument_code",
+            "area_type",
+            "property_subtype",
+            func.coalesce(duration_min_months, -1),
+            "effective_from",
+            unique=True,
+        ),
     )
 
 
