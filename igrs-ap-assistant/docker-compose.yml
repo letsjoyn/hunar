@@ -1,0 +1,48 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: igrs_ap_assistant_web
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://postgres:${POSTGRES_PASSWORD:-local-demo-password}@db:5432/igrs_ap
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
+      - CARD_HMAC_SECRET=${CARD_HMAC_SECRET:-}
+      - ADMIN_API_TOKEN=${ADMIN_API_TOKEN:-}
+      - APP_ENV=development
+      - ALLOW_EXTERNAL_LLM=false
+      - SRO_OFFICE_CODE=LOCAL-DEMO
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./data/chroma_db:/app/data/chroma_db:ro
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  db:
+    image: postgres:16-alpine
+    container_name: igrs_ap_assistant_db
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=igrs_ap
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-local-demo-password}
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d igrs_ap"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:

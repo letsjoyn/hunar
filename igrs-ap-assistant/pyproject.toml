@@ -1,0 +1,17 @@
+[project]
+name = "igrs-ap-assistant"
+version = "0.1.0"
+description = "Independent local prototype for AP IGRS duty calculations and document search"
+requires-python = ">=3.11,<3.14"
+dependencies = [
+    "fastapi>=0.104.0",
+    "uvicorn[standard]>=0.24.0",
+    "sqlalchemy>=2.0",
+    "pydantic>=2.0",
+    "python-dotenv>=1.0.1",
+    "pytest>=7.0",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["backend/tests"]
+pythonpath = ["."]

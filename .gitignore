@@ -1,19 +1,26 @@
-# Secrets and local environments
+# Secrets and local configuration
 .env
 .env.*
-!.env.example
-.venv/
-.venv*/
-__pycache__/
+
+# Virtual environments and generated caches
+**/.venv*/
+**/venv*/
+**/__pycache__/
+**/.pytest_cache/
+**/.mypy_cache/
+**/.ruff_cache/
+**/.cache/
+**/node_modules/
 *.py[cod]
 
-# Generated/local databases and vector indexes
+# Local databases, logs, and generated indexes
 *.db
 *.sqlite
 *.sqlite3
-chroma_db/
+*.log
+**/chroma_db/
 
-# Raw/unreviewed source drops must stay outside the public repository
-data/raw/
-data/unreviewed/
+# Unreviewed source drops
+**/data/raw/
+**/data/unreviewed/
 *.ocr.txt

@@ -1,0 +1,13 @@
+service_code,description,value_threshold_min,value_threshold_max,included_sheets,charge_amount,effective_from,effective_to,authority_citation,verification_status,notes
+# Post-2023 User Charges (G.O.Ms.No. 192 dt. 25.04.2023),,,,,,,,,PENDING_REVIEW,
+REGN_BOOK1_MAJOR,Book-I Sale/Gift/Partition/Release/Settlement/AGPA/Exchange (up to 10 sheets),0,,10,500.00,2023-04-25,,G.O.Ms.No. 192 dt. 25.04.2023,PENDING_REVIEW,Covers all major Book-I property transactions
+REGN_BOOK3_4,Book-III/IV/Leases/Mortgages/Agreements (up to 10 sheets),0,,10,100.00,2023-04-25,,G.O.Ms.No. 192 dt. 25.04.2023,PENDING_REVIEW,Excludes mortgage declarations
+REGN_POA_42E_G,Power of Attorney u/Art 42(e) and (g) (up to 10 sheets),0,,10,500.00,2023-04-25,,G.O.Ms.No. 192 dt. 25.04.2023,PENDING_REVIEW,
+EXTRA_SHEET,Per extra sheet beyond 10,0,,0,10.00,2023-04-25,,G.O.Ms.No. 192 dt. 25.04.2023,PENDING_REVIEW,Per additional scanned sheet
+EC,Encumbrance Certificate issue,0,,0,100.00,2023-04-25,,G.O.Ms.No. 192 dt. 25.04.2023,PENDING_REVIEW,
+CC,Certified Copy issue,0,,0,100.00,2023-04-25,,G.O.Ms.No. 192 dt. 25.04.2023,PENDING_REVIEW,
+MV_ASSIST,Market Value Assistance Certification,0,,0,50.00,2023-04-25,,G.O.Ms.No. 192 dt. 25.04.2023,PENDING_REVIEW,
+# Pre-2023 User Charges (G.O.Ms.No. 99 dt. 08.03.2002),,,,,,,,,PENDING_REVIEW,
+REGN_BOOK1_MAJOR_OLD_LOW,Book-I Sale/Gift/etc value <= Rs.50000 (up to 10 sheets),0,50000,10,50.00,2002-03-08,2023-04-24,G.O.Ms.No. 99 dt. 08.03.2002,PENDING_REVIEW,
+REGN_BOOK1_MAJOR_OLD_HIGH,Book-I Sale/Gift/etc value > Rs.50000 (up to 10 sheets),50001,,10,95.00,2002-03-08,2023-04-24,G.O.Ms.No. 99 dt. 08.03.2002,PENDING_REVIEW,
+EXTRA_SHEET_OLD,Per extra sheet beyond 10 (old),0,,0,5.00,2002-03-08,2023-04-24,G.O.Rt.No. 1813 dt. 18.10.2002,PENDING_REVIEW,

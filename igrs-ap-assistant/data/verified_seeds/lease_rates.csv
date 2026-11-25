@@ -1,0 +1,10 @@
+instrument_code,article_ref,area_type,property_subtype,duration_min_months,duration_max_months,calc_basis,stamp_duty_type,stamp_duty_value,stamp_duty_min,stamp_duty_max,transfer_duty_pct,reg_fee_type,reg_fee_value,reg_fee_min,reg_fee_max,is_adjustable,effective_from,effective_to,authority_citation,verification_status,notes
+# Lease rates w.e.f. 05.12.2013 (G.O.Ms.No. 588 Rev (Regn-I) dt. 04.12.2013),,,,,,,,,,,,,,,,,,,,PENDING_REVIEW,
+LEASE,Art. 31,ALL,ALL,0,11,TOTAL_RENT,PERCENT,0.4000,,,0.0000,PERCENT,0.1000,,,false,2013-12-05,,G.O.Ms.No. 588 Rev (Regn-I) dt. 04.12.2013,PENDING_REVIEW,Less than 1 year
+LEASE,Art. 31,ALL,RESIDENTIAL,12,60,AAR,PERCENT,0.5000,,,0.0000,PERCENT,0.1000,,,false,2013-12-05,,G.O.Ms.No. 588 Rev (Regn-I) dt. 04.12.2013,PENDING_REVIEW,1-5 years residential
+LEASE,Art. 31,ALL,COMMERCIAL,12,60,AAR,PERCENT,1.0000,,,0.0000,PERCENT,0.1000,,,false,2013-12-05,,G.O.Ms.No. 588 Rev (Regn-I) dt. 04.12.2013,PENDING_REVIEW,1-5 years other (commercial)
+LEASE,Art. 31,ALL,RESIDENTIAL,61,120,AAR,PERCENT,1.0000,,,0.0000,PERCENT,0.1000,,,false,2013-12-05,,G.O.Ms.No. 588 Rev (Regn-I) dt. 04.12.2013,PENDING_REVIEW,5-10 years residential
+LEASE,Art. 31,ALL,COMMERCIAL,61,120,AAR,PERCENT,2.0000,,,0.0000,PERCENT,0.1000,,,false,2013-12-05,,G.O.Ms.No. 588 Rev (Regn-I) dt. 04.12.2013,PENDING_REVIEW,5-10 years other (commercial)
+LEASE,Art. 31,ALL,ALL,121,240,AAR,PERCENT,6.0000,,,0.0000,PERCENT,0.1000,,,false,2013-12-05,,G.O.Ms.No. 588 Rev (Regn-I) dt. 04.12.2013,PENDING_REVIEW,10-20 years
+LEASE,Art. 31,ALL,ALL,241,360,AAR,PERCENT,15.0000,,,0.0000,PERCENT,0.1000,,,false,2013-12-05,,G.O.Ms.No. 588 Rev (Regn-I) dt. 04.12.2013,PENDING_REVIEW,20-30 years
+LEASE_PERPETUAL,Art. 31,ALL,ALL,361,,MARKET_VALUE,PERCENT,3.0000,,,1.5000,PERCENT,0.1000,,,false,2013-12-05,,G.O.Ms.No. 588 Rev (Regn-I) dt. 04.12.2013,PENDING_REVIEW,More than 30 years or perpetuity. Also attracts Transfer Duty.

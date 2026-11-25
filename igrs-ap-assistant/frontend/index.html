@@ -1,0 +1,1269 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Registration &amp; Stamps — AP IGRS Prototype</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <style>
+    :root {
+      --font-main: 'Instrument Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    * {
+      font-family: var(--font-main);
+    }
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      font-family: var(--font-main);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      background-color: #f8fafc;
+      color: #0f172a;
+    }
+    .num {
+      font-variant-numeric: tabular-nums;
+      font-feature-settings: "tnum";
+    }
+    
+    /* Sleek minimal scrollbars */
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+    /* Markdown prose styles inside chat (Zerodha / Uber Fintech Standard) */
+    .prose-chat p { margin: 0 0 0.5rem 0; line-height: 1.6; }
+    .prose-chat h3 { font-size: 0.8125rem; font-weight: 700; margin: 0.75rem 0 0.4rem 0; color: #0f172a; letter-spacing: -0.01em; }
+    .prose-chat table { width: 100%; font-size: 0.75rem; border-collapse: separate; border-spacing: 0; margin: 0.75rem 0; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; overflow: hidden; }
+    .prose-chat th { background: #f8fafc; text-align: left; padding: 7px 12px; border-bottom: 1px solid #e2e8f0; font-weight: 600; color: #64748b; font-size: 0.6875rem; text-transform: uppercase; letter-spacing: 0.05em; }
+    .prose-chat td { padding: 7px 12px; border-bottom: 1px solid #f1f5f9; font-variant-numeric: tabular-nums; color: #1e293b; }
+    .prose-chat tr:last-child td { border-bottom: none; }
+    .prose-chat code { font-size: 0.72rem; background: #f1f5f9; padding: 1.5px 5px; border: 1px solid #e2e8f0; color: #0f172a; border-radius: 4px; font-weight: 500; }
+    .prose-chat pre { background: #0f172a; color: #f8fafc; padding: 10px 12px; border: 1px solid #1e293b; overflow-x: auto; font-size: 0.75rem; margin: 0.5rem 0; border-radius: 6px; }
+    .prose-chat blockquote { border-left: 2px solid #0f172a; background: #f8fafc; padding: 8px 12px; margin: 0.5rem 0; color: #334155; font-size: 0.75rem; border-radius: 0 4px 4px 0; }
+    .prose-chat ul { margin: 0.25rem 0 0.5rem 1rem; list-style-type: disc; }
+    .prose-chat li { margin-bottom: 0.25rem; line-height: 1.55; }
+    .prose-chat hr { margin: 0.75rem 0; border: none; border-top: 1px solid #e2e8f0; }
+
+    /* Print styles */
+    @media print {
+      body * { visibility: hidden; }
+      #printableSlip, #printableSlip * { visibility: visible; }
+      #printableSlip { position: absolute; left: 0; top: 0; width: 100%; border: none; box-shadow: none; }
+    }
+
+    /* Calm, information-dense registration workbench */
+    :root {
+      --ink: #17191c;
+      --muted: #73777d;
+      --line: #e6e7e8;
+      --canvas: #f5f6f6;
+      --paper: #ffffff;
+      --green: #008b68;
+      --green-soft: #e8f5f0;
+      --amber: #8a5b00;
+      --amber-soft: #fff5df;
+    }
+    html, body { background: var(--canvas) !important; color: var(--ink) !important; }
+    body {
+      display: grid !important;
+      grid-template-columns: 208px minmax(0, 1fr) 376px;
+      grid-template-rows: 62px minmax(0, 1fr);
+      overflow: hidden !important;
+    }
+    body > header {
+      grid-column: 1 / -1;
+      grid-row: 1;
+      height: 62px !important;
+      padding: 0 24px !important;
+      background: var(--paper) !important;
+      color: var(--ink) !important;
+      border-bottom: 1px solid var(--line) !important;
+      z-index: 20;
+    }
+    body > header .w-8 { background: var(--ink) !important; border-color: var(--ink) !important; color: #fff !important; border-radius: 8px !important; }
+    body > header .text-white { color: var(--ink) !important; }
+    body > header .text-slate-400, body > header .text-slate-300 { color: var(--muted) !important; }
+    body > header button:hover { background: #f2f3f3 !important; color: var(--ink) !important; }
+    .workspace-nav {
+      grid-column: 1;
+      grid-row: 2;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      padding: 22px 12px 14px;
+      background: var(--paper);
+      border-right: 1px solid var(--line);
+    }
+    .nav-eyebrow { padding: 0 10px; margin: 0 0 10px; color: #92969b; font-size: 10px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
+    .nav-action {
+      display: flex; align-items: center; gap: 11px; width: 100%; min-height: 40px;
+      padding: 0 11px; border: 0; border-radius: 7px; background: transparent;
+      color: #555a60; font: 500 13px var(--font-main); text-align: left; cursor: pointer;
+      transition: background .15s ease, color .15s ease;
+    }
+    .nav-action:hover { background: #f3f4f4; color: var(--ink); }
+    .nav-action.active { background: #eef5f2; color: #006e52; font-weight: 650; }
+    .nav-action i { width: 16px; color: #767b80; font-size: 13px; }
+    .nav-action.active i { color: var(--green); }
+    .nav-divider { height: 1px; background: var(--line); margin: 17px 8px; }
+    .nav-note { margin-top: auto; padding: 12px 10px 2px; color: #8a8e93; font-size: 11px; line-height: 1.55; }
+    .prompt-chip { padding: 8px 11px; border: 1px solid #e0e3e2; border-radius: 7px; background: #fff; color: #4d5357; font: 500 11px var(--font-main); cursor: pointer; transition: border-color .15s ease, background .15s ease; }
+    .prompt-chip:hover { border-color: #aab5b0; background: #f9fbfa; color: var(--ink); }
+    main {
+      grid-column: 2;
+      grid-row: 2;
+      min-width: 0;
+      min-height: 0;
+      background: var(--canvas) !important;
+    }
+    main > div {
+      max-width: 900px !important;
+      padding-top: 24px !important;
+    }
+    #chatMessages { padding: 8px 30px 22px !important; }
+    #chatMessages > div:first-child {
+      border: 0 !important; border-radius: 0 !important; box-shadow: none !important;
+      background: transparent !important; padding: 14px 0 20px !important;
+    }
+    #chatMessages > div:first-child h2 {
+      font-size: 10px !important; letter-spacing: .13em !important; color: #747a7f !important;
+    }
+    #chatMessages > div:first-child p:first-of-type {
+      margin-top: 20px !important; max-width: 640px; color: var(--ink) !important;
+      font-size: clamp(26px, 3vw, 36px) !important; font-weight: 600 !important;
+      line-height: 1.14 !important; letter-spacing: -.045em !important;
+    }
+    #chatMessages > div:first-child p:last-of-type { max-width: 600px; font-size: 13px !important; color: #62676c !important; line-height: 1.65 !important; }
+    #chatMessages > div:first-child .text-\[11px\] { font-size: 11px !important; }
+    #thinkingIndicator { border-top: 1px solid var(--line) !important; background: var(--canvas) !important; color: #696e73 !important; padding: 12px 30px !important; }
+    #thinkingIndicator i { color: var(--green) !important; }
+    #chatForm { max-width: 840px; margin: 0 auto; gap: 10px !important; }
+    main > div > div:last-child {
+      background: var(--canvas) !important; border-color: var(--line) !important;
+      padding: 14px 28px 18px !important; box-shadow: none !important;
+    }
+    #chatInput {
+      min-height: 50px; background: var(--paper) !important; border: 1px solid #d9dcde !important;
+      border-radius: 9px !important; padding: 0 16px !important; font-size: 14px !important;
+      box-shadow: 0 1px 2px #1018280a;
+    }
+    #chatInput:focus { border-color: #7d8581 !important; box-shadow: 0 0 0 3px #008b6815 !important; }
+    #chatSubmitBtn { min-height: 48px; padding: 0 18px !important; border-radius: 8px !important; background: var(--ink) !important; text-transform: none !important; letter-spacing: 0 !important; font-size: 13px !important; }
+    #chatSubmitBtn:hover { background: #33373b !important; }
+    #chatSubmitBtn i { display: none; }
+    #billDrawer {
+      grid-column: 3;
+      grid-row: 2;
+      min-width: 0;
+      min-height: 0;
+      display: flex !important;
+      flex-direction: column;
+      position: static !important;
+      width: auto !important;
+      height: auto !important;
+      transform: none !important;
+      background: var(--paper) !important;
+      border-left: 1px solid var(--line);
+      box-shadow: none !important;
+      z-index: 1;
+    }
+    #billDrawer > div:first-child {
+      height: 62px !important; padding: 0 18px !important;
+      background: var(--paper) !important; color: var(--ink) !important;
+      border-bottom: 1px solid var(--line) !important; border-color: var(--line) !important;
+    }
+    #billDrawer > div:first-child span { color: #81868b !important; font-size: 9px !important; }
+    #billDrawer > div:first-child h3 { color: var(--ink) !important; font-size: 14px !important; font-weight: 600 !important; }
+    #billDrawer > div:first-child button { background: #f5f6f6 !important; color: #52575c !important; border-color: var(--line) !important; }
+    #billDrawer > div:nth-child(2) { height: 48px !important; padding: 0 14px !important; background: var(--paper) !important; border-color: var(--line) !important; gap: 14px !important; }
+    #billDrawer > div:nth-child(2) button { font-size: 11px !important; }
+    #billDrawer > div:nth-child(3) { min-height: 0; padding: 16px !important; background: #fafbfb !important; }
+    #printableSlip, #rightTab-legal > div:first-child, #rightTab-tools > div {
+      border: 1px solid var(--line) !important; border-radius: 9px !important; box-shadow: none !important;
+    }
+    #rightTab-tools > div { padding: 16px !important; }
+    #rightTab-tools h4, #rightTab-legal h3 { font-size: 11px !important; letter-spacing: .02em !important; text-transform: none !important; }
+    #billDrawer input, #billDrawer select { min-height: 38px; border-color: #d9dcde !important; border-radius: 6px !important; font-size: 12px !important; }
+    #billDrawer button:not([onclick^="switchRightTab"]):not([onclick="closeBillDrawer()"]) { border-radius: 6px !important; }
+    .prose-chat { max-width: 72ch; font-size: 13px !important; }
+    .prose-chat p { margin-bottom: 10px !important; line-height: 1.72 !important; }
+    .prose-chat > h3:first-child { margin-top: 4px !important; margin-bottom: 12px !important; font-size: 17px !important; font-weight: 600 !important; letter-spacing: -.025em !important; }
+    .prose-chat table { display: block; overflow-x: auto; border-radius: 8px !important; }
+    .prose-chat strong { color: #22272b; font-weight: 650; }
+    .prose-chat h3 { font-size: 14px !important; }
+    .prose-chat pre { background: #f5f6f6 !important; color: #30353a !important; border-color: var(--line) !important; border-radius: 7px !important; }
+    .prose-chat blockquote { border-left-color: var(--green) !important; background: #f5f8f6 !important; }
+    #chatMessages > .flex.items-start > div:last-child {
+      max-width: 780px; border: 0 !important; border-radius: 0 !important;
+      background: transparent !important; box-shadow: none !important;
+      padding: 6px 0 20px !important;
+    }
+    #chatMessages > .flex.items-start > div:first-child { display: none; }
+    #chatMessages > .flex.items-start > div:last-child > div:first-child { border: 0 !important; padding-bottom: 7px !important; }
+    #chatMessages > .flex.items-start > div:last-child > div:first-child span:first-child { color: var(--green) !important; font-size: 10px !important; letter-spacing: .1em !important; }
+    #chatMessages > .flex.justify-end > div { background: #e9eceb !important; color: var(--ink) !important; border-radius: 11px !important; box-shadow: none !important; }
+    #chatMessages > .flex.justify-end > div span { color: #81868b !important; }
+    #inspectorToggle { display: none; }
+    @media (max-width: 1180px) {
+      body { grid-template-columns: 68px minmax(0, 1fr) 340px; }
+      .nav-eyebrow, .nav-label, .nav-note, .nav-divider { display: none; }
+      .workspace-nav { align-items: center; padding: 18px 8px; }
+      .nav-action { width: 44px; height: 44px; justify-content: center; padding: 0; }
+      .nav-action i { width: auto; font-size: 16px; }
+      #chatMessages { padding-left: 22px !important; padding-right: 22px !important; }
+    }
+    @media (max-width: 820px) {
+      body { grid-template-columns: 1fr; grid-template-rows: 58px minmax(0, 1fr); }
+      body > header { height: 58px !important; padding: 0 14px !important; }
+      .workspace-nav { display: none; }
+      main { grid-column: 1; grid-row: 2; }
+      main > div { padding-top: 12px !important; }
+      #chatMessages { padding: 8px 18px 16px !important; }
+      main > div > div:last-child { padding: 10px 14px 14px !important; }
+      #billDrawer {
+        position: fixed !important; display: flex !important; top: 58px; right: 0; bottom: 0;
+        width: min(92vw, 390px) !important; transform: translateX(102%) !important;
+        transition: transform .2s ease; z-index: 50; box-shadow: -14px 0 36px #11182718 !important;
+      }
+      #billDrawer.is-mobile-open { transform: translateX(0) !important; }
+      #inspectorToggle { display: inline-flex; }
+    }
+    @media (max-width: 480px) {
+      body > header { padding: 0 10px !important; }
+      body > header .text-\[11px\] { display: none; }
+      #chatInput { font-size: 13px !important; padding: 0 12px !important; }
+      #chatSubmitBtn { padding: 0 13px !important; }
+      #chatMessages > div:first-child p:first-of-type { font-size: 28px !important; }
+    }
+  </style>
+</head>
+<body class="flex flex-col h-full bg-slate-50 text-slate-900 select-text">
+
+  <!-- ============================================================== -->
+  <!-- TOP APP BAR (MODERN FINTECH / GOVERNMENT CONSOLE) -->
+  <!-- ============================================================== -->
+  <header class="h-14 bg-slate-900 text-white flex-shrink-0 border-b border-slate-800 px-4 sm:px-6 flex items-center justify-between z-30">
+    
+    <!-- Left: Identity & Badges -->
+    <div class="flex items-center space-x-3">
+      <div class="w-8 h-8 rounded bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-300">
+        <i class="fa-solid fa-landmark text-sm"></i>
+      </div>
+      <div>
+        <div class="text-sm font-semibold tracking-tight text-white">
+          Registration &amp; Stamps
+        </div>
+        <div class="text-[11px] text-slate-400 font-normal">
+          AP IGRS · Local research prototype
+        </div>
+        <!-- Required for test suite: CARD 2.0 Engine -->
+        <span class="sr-only">CARD 2.0 Engine</span>
+      </div>
+    </div>
+
+    <!-- Right: Header Actions -->
+    <div class="flex items-center space-x-2.5">
+      <span class="hidden sm:inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-2.5 py-1 text-[10px] font-semibold tracking-wide text-amber-800 border border-amber-100">
+        <span class="h-1.5 w-1.5 rounded-full bg-amber-500"></span> LOCAL MODE · NO LLM
+      </span>
+      <button id="inspectorToggle" onclick="toggleInspector()" class="items-center gap-2 px-3 py-2 text-xs font-medium text-slate-700 rounded-md border border-slate-200" title="Open tools and sources">
+        <i class="fa-solid fa-sliders"></i><span>Tools</span>
+      </button>
+      <button onclick="clearChat()" class="inline-flex items-center gap-2 px-3 py-2 text-xs font-medium text-slate-600 hover:text-slate-900 rounded-md transition" title="Reset conversation">
+        <i class="fa-solid fa-arrow-rotate-left text-xs"></i><span>New chat</span>
+      </button>
+    </div>
+
+  </header>
+
+  <nav class="workspace-nav" aria-label="Workspace navigation">
+    <p class="nav-eyebrow">Workspace</p>
+    <button class="nav-action active" onclick="focusChat()" aria-label="Ask a question">
+      <i class="fa-regular fa-message"></i><span class="nav-label">Ask a question</span>
+    </button>
+    <button class="nav-action" onclick="openInspector('tools')" aria-label="Calculators">
+      <i class="fa-solid fa-calculator"></i><span class="nav-label">Calculators</span>
+    </button>
+    <button class="nav-action" onclick="openInspector('legal')" aria-label="Legal sources">
+      <i class="fa-solid fa-book-open"></i><span class="nav-label">Legal sources</span>
+    </button>
+    <button class="nav-action" onclick="openInspector('slip')" aria-label="Check-slip">
+      <i class="fa-regular fa-file-lines"></i><span class="nav-label">Check-slip</span>
+    </button>
+    <div class="nav-divider"></div>
+    <p class="nav-eyebrow">Shortcuts</p>
+    <button class="nav-action" onclick="sendQuickPrompt('What source records support the current sale deed rates?')">
+      <i class="fa-solid fa-magnifying-glass"></i><span class="nav-label">Find a source</span>
+    </button>
+    <div class="nav-note">Independent prototype. Confirm legal rules and rates against current primary sources.</div>
+  </nav>
+
+  <!-- ============================================================== -->
+  <!-- MAIN FULL-SCREEN CHAT CONTAINER (CENTERED & EXPANSIVE) -->
+  <!-- ============================================================== -->
+  <main class="flex-1 w-full overflow-hidden flex flex-col justify-between bg-slate-50 relative">
+    
+    <!-- Centered Column Container -->
+    <div class="max-w-4xl lg:max-w-5xl mx-auto w-full h-full flex flex-col justify-between overflow-hidden pt-3 sm:pt-4">
+
+      <!-- Scrollable Chat Messages Container -->
+      <div id="chatMessages" class="flex-1 p-4 sm:p-6 overflow-y-auto space-y-4">
+        
+        <!-- Welcome Banner -->
+        <div class="border border-slate-200 bg-white rounded-xl p-5 space-y-3 shadow-xs">
+          <div class="flex items-center justify-between pb-2 border-b border-slate-100">
+            <h2 class="text-xs font-bold text-slate-900 uppercase tracking-tight">
+              AP · Registration desk
+            </h2>
+            <span class="text-[11px] text-amber-700 font-semibold">LOCAL DEMO · NOT OFFICIAL</span>
+          </div>
+          <p class="text-xs text-slate-600 leading-relaxed">
+            Find a rule. Check a rate. Review a historical date.
+          </p>
+          <div class="flex flex-wrap gap-2 pt-1">
+            <button onclick="sendQuickPrompt('What rules applied to a deed on a historical execution date?')" class="prompt-chip">Historical rates</button>
+            <button onclick="sendQuickPrompt('Find the source and rule for Section 22-A')" class="prompt-chip">Search a rule</button>
+            <button onclick="sendQuickPrompt('Calculate duty for a sale deed in a municipal corporation')" class="prompt-chip">Calculate duty</button>
+          </div>
+          <div class="text-[11px] text-slate-500 pt-1">
+            <span>Answers are only as reliable as the indexed source. Verify legal decisions and charges against current official records.</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Thinking Indicator -->
+      <div id="thinkingIndicator" class="hidden px-4 py-2.5 border-t border-slate-200 bg-slate-50 text-xs text-slate-600 flex items-center space-x-2 flex-shrink-0">
+        <i class="fa-solid fa-circle-notch fa-spin text-slate-800"></i>
+        <span class="text-xs font-medium">Checking the local rules, calculator, and source index…</span>
+      </div>
+
+      <!-- Sticky Input Bar -->
+      <div class="p-3 sm:p-4 border-t border-slate-200 bg-white flex-shrink-0 shadow-xs">
+        <form id="chatForm" onsubmit="handleChatSubmit(event)" class="flex items-center space-x-2">
+          <input 
+            type="text" 
+            id="chatInput" 
+            placeholder="Ask about a deed, rate, date, or legal source…" 
+            class="flex-1 text-xs sm:text-sm px-4 py-3 bg-slate-50 border border-slate-300 rounded-lg focus:outline-none focus:border-slate-900 focus:bg-white text-slate-900 placeholder:text-slate-400 transition"
+            autocomplete="off"
+          />
+          <button 
+            type="submit" 
+            id="chatSubmitBtn" 
+            class="px-5 py-3 bg-slate-900 hover:bg-slate-800 active:bg-slate-950 text-white text-xs font-semibold tracking-wide uppercase rounded-lg transition flex items-center gap-2 flex-shrink-0 shadow-sm"
+          >
+            <span>Ask</span>
+            <i class="fa-solid fa-arrow-up text-[10px]"></i>
+          </button>
+        </form>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- ============================================================== -->
+  <!-- SLIDE-IN BILL / CARD CHECK-SLIP DRAWER & BACKDROP -->
+  <!-- ============================================================== -->
+  
+  <!-- Backdrop Overlay (Hidden in Chat-Only Mode) -->
+  <div 
+    id="drawerBackdrop" 
+    onclick="closeBillDrawer()" 
+    class="hidden"
+    style="display: none !important;"
+  ></div>
+
+  <!-- Slide Drawer Container (Hidden in Chat-Only Mode) -->
+  <aside 
+    id="billDrawer" 
+    aria-label="Tools, calculations, and legal sources"
+  >
+    
+    <!-- Drawer Header -->
+    <div class="h-14 bg-slate-900 text-white px-5 flex items-center justify-between flex-shrink-0 border-b border-slate-800">
+      <div>
+        <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider block">Inspector</span>
+        <h3 class="text-sm font-bold text-white">
+          Working panel
+        </h3>
+      </div>
+      <div class="flex items-center space-x-2">
+        <button 
+          onclick="window.print()" 
+          class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs rounded border border-slate-700 transition flex items-center gap-1.5"
+          title="Print local prototype check-slip"
+        >
+          <i class="fa-solid fa-print text-xs"></i>
+          <span>Print</span>
+        </button>
+        <button 
+          onclick="closeBillDrawer()" 
+          class="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-800 transition text-base"
+          title="Close Drawer (Esc)"
+        >
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Drawer Navigation Tabs -->
+    <div class="h-10 px-4 bg-slate-100 border-b border-slate-200 flex items-center space-x-6 text-xs flex-shrink-0">
+      <button onclick="switchRightTab('slip')" id="rightTabBtn-slip" class="h-full border-b-2 border-slate-900 font-bold text-slate-900 flex items-center space-x-1.5 transition">
+        <span>Check-slip</span>
+        <span id="slipUpdatedBadge" class="hidden w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+      </button>
+      <button onclick="switchRightTab('legal')" id="rightTabBtn-legal" class="h-full border-b-2 border-transparent text-slate-500 hover:text-slate-900 font-medium flex items-center space-x-1.5 transition">
+        <span>Sources</span>
+      </button>
+      <button onclick="switchRightTab('tools')" id="rightTabBtn-tools" class="h-full border-b-2 border-transparent text-slate-500 hover:text-slate-900 font-medium flex items-center space-x-1.5 transition">
+        <span>Tools</span>
+      </button>
+    </div>
+
+    <!-- Drawer Body (Scrollable) -->
+    <div class="flex-1 p-4 sm:p-6 overflow-y-auto bg-slate-50 space-y-4">
+      
+      <!-- ======================================================== -->
+      <!-- TAB 1: CARD CHECK-SLIP (THE OFFICIAL BILL) -->
+      <!-- ======================================================== -->
+      <div id="rightTab-slip" class="space-y-4">
+        
+        <!-- Printable Statement Card -->
+        <div id="printableSlip" class="bg-white border border-slate-200 p-6 space-y-5 rounded-lg shadow-sm">
+          
+          <!-- Slip Top Row -->
+          <div class="flex justify-between items-start pb-4 border-b border-slate-100">
+            <div>
+              <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500 block mb-0.5">Independent local prototype · not a government service</span>
+              <h3 class="text-base font-bold text-slate-900 tracking-tight">DUTY & FEE CHECK-SLIP</h3>
+              <p id="slipDocCode" class="text-xs text-slate-600 font-semibold mt-0.5">Run a calculation to populate this panel</p>
+            </div>
+            <div class="text-right">
+              <span id="slipDate" class="text-xs font-semibold text-slate-900 block num">—</span>
+              <span id="slipArea" class="text-[11px] text-slate-500 font-medium">—</span>
+            </div>
+          </div>
+
+          <!-- Assessed Value Bar -->
+          <div class="bg-slate-50 p-3.5 flex justify-between items-center border border-slate-200 rounded-md">
+            <div>
+              <span class="text-xs font-semibold text-slate-700">Chargeable value</span>
+              <p class="text-[11px] text-slate-400">Calculated from the submitted inputs</p>
+            </div>
+            <div id="slipChargeable" class="text-lg font-bold text-slate-900 num tracking-tight">
+            —
+            </div>
+          </div>
+
+          <!-- Fee Breakdown Table -->
+          <table class="w-full text-xs text-left">
+            <thead>
+              <tr class="border-b border-slate-200 text-slate-400 font-semibold uppercase text-[10px] tracking-wider">
+                <th class="py-2.5">Fee Head</th>
+                <th class="py-2.5 text-center">Statutory Rate / Base</th>
+                <th class="py-2.5 text-right">Duty Payable</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 text-slate-700">
+              <tr>
+                <td class="py-2.5 font-medium text-slate-900">Stamp Duty (SD)</td>
+                <td id="slipSDRate" class="py-2.5 text-center text-slate-500 num">—</td>
+                <td id="slipSDAmount" class="py-2.5 text-right font-semibold text-slate-900 num">—</td>
+              </tr>
+              <tr>
+                <td class="py-2.5 font-medium text-slate-900">Transfer Duty (TD)</td>
+                <td id="slipTDRate" class="py-2.5 text-center text-slate-500 num">—</td>
+                <td id="slipTDAmount" class="py-2.5 text-right font-semibold text-slate-900 num">—</td>
+              </tr>
+              <tr>
+                <td class="py-2.5 font-medium text-slate-900">Registration Fee (RF)</td>
+                <td id="slipRFRate" class="py-2.5 text-center text-slate-500 num">—</td>
+                <td id="slipRFAmount" class="py-2.5 text-right font-semibold text-slate-900 num">—</td>
+              </tr>
+              <tr>
+                <td class="py-2.5 font-medium text-slate-900">User Charges (CARD)</td>
+                <td id="slipUCRate" class="py-2.5 text-center text-slate-500 num">—</td>
+                <td id="slipUCAmount" class="py-2.5 text-right font-semibold text-slate-900 num">—</td>
+              </tr>
+            </tbody>
+            <tfoot>
+              <tr class="border-t-2 border-slate-900 text-slate-900">
+                <td class="py-3 font-bold uppercase tracking-wider text-xs">Total Payable</td>
+                <td class="py-3 text-center text-[11px] text-slate-400">Grand Total Duty & Fees</td>
+                <td id="slipTotalAmount" class="py-3 text-right text-xl font-bold text-slate-900 num tracking-tight">
+                  —
+                </td>
+              </tr>
+            </tfoot>
+          </table>
+
+          <!-- Section 41-A Audit Deficit Box (When comparing) -->
+          <div id="slipAuditBox" class="hidden border border-slate-200 bg-slate-50 p-3 space-y-2 rounded-md">
+            <div class="flex items-center justify-between pb-1 border-b border-slate-200">
+              <span class="text-xs font-bold text-slate-900 uppercase tracking-wide">
+                Section 41-A Audit Deficit Analysis
+              </span>
+              <span id="slipAuditDeltaBadge" class="font-bold text-xs px-2 py-0.5 bg-slate-200 text-slate-900 num rounded">
+                —
+              </span>
+            </div>
+            <div class="grid grid-cols-2 gap-2 text-xs">
+              <div class="p-2 bg-white border border-slate-200 rounded">
+                <span class="block text-[10px] text-slate-500 uppercase font-medium">Historical Execution Total:</span>
+                <span id="slipAuditOldTotal" class="font-bold text-slate-900 num">—</span>
+              </div>
+              <div class="p-2 bg-white border border-slate-200 rounded">
+                <span class="block text-[10px] text-slate-500 uppercase font-medium">Current Prevailing Total:</span>
+                <span id="slipAuditCurTotal" class="font-bold text-slate-900 num">—</span>
+              </div>
+            </div>
+            <p id="slipAuditNote" class="text-[11px] text-slate-600 italic">
+              Historical comparison will appear after a verified calculation.
+            </p>
+          </div>
+
+          <!-- Official Reference & Citation Bar -->
+          <div class="mt-4 pt-3 border-t border-slate-200 flex justify-between items-center text-xs text-slate-600">
+            <div>
+              <span class="text-[10px] text-slate-400 block uppercase font-medium">Local reference</span>
+              <span id="slipRefNo" class="font-semibold text-slate-800 num">—</span>
+            </div>
+            <div class="text-right">
+              <span class="text-[10px] text-slate-400 block uppercase font-medium">Source citations</span>
+              <span id="slipCitations" class="text-slate-700 font-medium">Shown after calculation</span>
+            </div>
+          </div>
+          <span id="slipGeneratedAt" class="hidden"></span>
+          <span id="slipVerifyBadge" class="hidden"></span>
+
+        </div>
+
+      </div>
+
+      <!-- ======================================================== -->
+      <!-- TAB 2: STATUTORY LEGAL RULES VIEWER -->
+      <!-- ======================================================== -->
+      <div id="rightTab-legal" class="hidden space-y-4">
+        
+        <div class="bg-white p-4 border border-slate-200 rounded-lg space-y-3 shadow-xs">
+          <div class="flex items-center justify-between">
+            <h3 class="text-xs font-bold text-slate-900 uppercase tracking-wide">
+              Statutory Knowledge Base
+            </h3>
+            <span class="text-[11px] text-slate-400">Local OCR corpus · review required</span>
+          </div>
+          
+          <div class="flex gap-2">
+            <input 
+              type="text" 
+              id="rightLegalInput" 
+              placeholder="Search Section (e.g. 'Section 22-A', 'Section 41-A', 'G.O.Ms.No. 192')..." 
+              class="flex-1 text-xs px-3 py-2 border border-slate-300 rounded focus:outline-none focus:border-slate-900 bg-slate-50"
+              onkeydown="if(event.key==='Enter') executeLegalSearch()"
+            />
+            <button onclick="executeLegalSearch()" class="px-3.5 py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold uppercase tracking-wider rounded transition">
+              Search
+            </button>
+          </div>
+          
+          <!-- Quick Chips -->
+          <div class="flex flex-wrap gap-1.5 text-[11px]">
+            <span class="text-slate-400 mr-1 self-center">Quick:</span>
+            <button onclick="searchQuickSection('Section 22-A')" class="px-2 py-0.5 border border-slate-200 hover:border-slate-400 bg-white text-slate-700 rounded">Sec 22-A</button>
+            <button onclick="searchQuickSection('Section 41-A')" class="px-2 py-0.5 border border-slate-200 hover:border-slate-400 bg-white text-slate-700 rounded">Sec 41-A</button>
+            <button onclick="searchQuickSection('Section 47-A')" class="px-2 py-0.5 border border-slate-200 hover:border-slate-400 bg-white text-slate-700 rounded">Sec 47-A</button>
+            <button onclick="searchQuickSection('Section 25')" class="px-2 py-0.5 border border-slate-200 hover:border-slate-400 bg-white text-slate-700 rounded">Sec 25</button>
+            <button onclick="searchQuickSection('G.O.Ms.No. 192')" class="px-2 py-0.5 border border-slate-200 hover:border-slate-400 bg-white text-slate-700 rounded">G.O. 192</button>
+            <button onclick="searchQuickSection('G.O.Ms.No. 394')" class="px-2 py-0.5 border border-slate-200 hover:border-slate-400 bg-white text-slate-700 rounded">G.O. 394</button>
+          </div>
+        </div>
+
+        <!-- Legal Results Container -->
+        <div id="rightLegalResults" class="space-y-3">
+          <div class="bg-white p-4 border border-slate-200 rounded-lg text-xs text-slate-500">
+            Search a section, Article, G.O., or subject. Results may be incomplete; check the cited primary source.
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ======================================================== -->
+      <!-- TAB 3: DIRECT MANUAL SRO CALCULATORS -->
+      <!-- ======================================================== -->
+      <div id="rightTab-tools" class="hidden space-y-4">
+        
+        <!-- Tool 1: 111-Deed Manual Form -->
+        <div class="bg-white border border-slate-200 p-4 space-y-3 rounded-lg shadow-xs">
+          <div class="flex items-center justify-between pb-2 border-b border-slate-200">
+            <h4 class="text-xs font-bold text-slate-900 uppercase tracking-wide">
+              Direct 111-Deed Duty Calculator
+            </h4>
+            <span class="text-[11px] text-slate-400">111 Deeds Active</span>
+          </div>
+          
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+            <div class="sm:col-span-2">
+              <label class="block text-[11px] font-semibold text-slate-600 mb-1">Document Classification & Code</label>
+              <select id="directDeedSelect" onchange="onDirectDeedChanged()" class="w-full p-2 border border-slate-300 bg-white text-xs rounded focus:outline-none focus:border-slate-900">
+                <option value="">Loading instruments...</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-600 mb-1">Jurisdiction Area</label>
+              <select id="directAreaSelect" class="w-full p-2 border border-slate-300 bg-white text-xs rounded focus:outline-none focus:border-slate-900">
+                <option value="MUNICIPAL_CORP">Municipal Corporation</option>
+                <option value="SPECIAL_SELECTION_MUNICIPALITY">Special / Selection Grade Municipality</option>
+                <option value="OTHER_MUNICIPALITY">Other Municipality</option>
+                <option value="GRAM_PANCHAYAT">Gram Panchayat (Rural)</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-600 mb-1">Execution Date</label>
+              <input type="date" id="directDateInput" value="2025-05-01" class="w-full p-2 border border-slate-300 bg-white text-xs rounded focus:outline-none focus:border-slate-900" />
+            </div>
+
+            <div id="directConsidGroup">
+              <label class="block text-[11px] font-semibold text-slate-600 mb-1">Consideration Value (₹)</label>
+              <input type="number" id="directConsidInput" value="" placeholder="Enter amount" class="w-full p-2 border border-slate-300 bg-white text-xs rounded focus:outline-none focus:border-slate-900 num" />
+            </div>
+
+            <div id="directMVGroup">
+              <label class="block text-[11px] font-semibold text-slate-600 mb-1">Market Value (₹)</label>
+              <input type="number" id="directMVInput" value="" placeholder="Enter market value" class="w-full p-2 border border-slate-300 bg-white text-xs rounded focus:outline-none focus:border-slate-900 num" />
+            </div>
+
+            <div id="directLoanGroup" class="hidden">
+              <label class="block text-[11px] font-semibold text-slate-600 mb-1">Loan / Advance Amount (₹)</label>
+              <input type="number" id="directLoanInput" value="" placeholder="Enter loan amount" class="w-full p-2 border border-slate-300 bg-white text-xs rounded num" />
+            </div>
+
+            <div id="directVSSGroup" class="hidden sm:col-span-2">
+              <label class="block text-[11px] font-semibold text-slate-600 mb-1">Partition Share Values (Comma-separated ₹)</label>
+              <input type="text" id="directVSSInput" placeholder="e.g. 500000, 300000, 200000" class="w-full p-2 border border-slate-300 bg-white text-xs rounded num" />
+            </div>
+          </div>
+
+          <button onclick="calculateDirectDeed()" class="w-full py-2 bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs uppercase tracking-wider rounded transition">
+            Calculate & Load to Check-Slip
+          </button>
+        </div>
+
+        <!-- Tool 2: Building Structure Valuation -->
+        <div class="bg-white border border-slate-200 p-4 space-y-3 rounded-lg shadow-xs">
+          <div class="flex items-center justify-between pb-2 border-b border-slate-200">
+            <h4 class="text-xs font-bold text-slate-900 uppercase tracking-wide">
+              Building Structure Valuation
+            </h4>
+            <span class="text-[11px] text-slate-400">G.O.Ms. 222</span>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3 text-xs">
+            <div class="col-span-2 sm:col-span-1">
+              <label class="block text-[11px] font-semibold text-slate-600 mb-1">Structure Type</label>
+              <select id="toolStructCategory" class="w-full p-2 border border-slate-300 bg-white text-xs rounded">
+                <option value="RCC_RESIDENTIAL">RCC Residential Building</option>
+                <option value="RCC_COMMERCIAL">RCC Commercial Complex</option>
+                <option value="TILED_MADRAS">Madras Terrace / Tiled Roof</option>
+                <option value="AC_SHEET">AC / GI Sheet Roofing</option>
+                <option value="HUT_THATCHED">Thatched / Katcha Hut</option>
+              </select>
+            </div>
+
+            <div class="col-span-2 sm:col-span-1">
+              <label class="block text-[11px] font-semibold text-slate-600 mb-1">Area Tier</label>
+              <select id="toolStructTier" class="w-full p-2 border border-slate-300 bg-white text-xs rounded">
+                <option value="MUNICIPAL_CORP">Corporation / Tier 1 City</option>
+                <option value="SPECIAL_MUNICIPALITY">Special Selection Municipality</option>
+                <option value="OTHER_MUNICIPALITY">Other Municipality</option>
+                <option value="PANCHAYAT">Gram Panchayat</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-600 mb-1">Plinth Area (Sq.Ft)</label>
+              <input type="number" id="toolStructPlinth" value="1200" class="w-full p-2 border border-slate-300 bg-white text-xs rounded num" />
+            </div>
+
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-600 mb-1">Building Age (Years)</label>
+              <input type="number" id="toolStructAge" value="10" class="w-full p-2 border border-slate-300 bg-white text-xs rounded num" />
+            </div>
+          </div>
+
+          <button onclick="calculateDirectStructure()" class="w-full py-2 bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs uppercase tracking-wider rounded transition">
+            Compute Structure Valuation
+          </button>
+
+          <div id="toolStructResult" class="hidden p-3 bg-slate-50 border border-slate-200 text-xs space-y-1 rounded">
+            <div class="flex justify-between font-bold text-slate-900">
+              <span>Net Depreciated Value:</span>
+              <span id="toolStructNet" class="num">₹ 0</span>
+            </div>
+            <div class="text-[10px] text-slate-500 flex justify-between num">
+              <span>Base Rate: <span id="toolStructBase">₹ 0</span>/sqft</span>
+              <span>Gross: <span id="toolStructGross">₹ 0</span></span>
+              <span>Depreciation: <span id="toolStructDep">0%</span></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tool 3: Land Unit Converter -->
+        <div class="bg-white border border-slate-200 p-4 space-y-3 rounded-lg shadow-xs">
+          <div class="flex items-center justify-between pb-2 border-b border-slate-200">
+            <h4 class="text-xs font-bold text-slate-900 uppercase tracking-wide">
+              AP Land Unit Converter
+            </h4>
+            <span class="text-[11px] text-slate-400">Rayalaseema & Coastal</span>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3 text-xs">
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-600 mb-1">Value</label>
+              <input type="number" id="toolAreaValue" value="10" class="w-full p-2 border border-slate-300 bg-white text-xs rounded num" />
+            </div>
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-600 mb-1">Source Unit</label>
+              <select id="toolAreaUnit" class="w-full p-2 border border-slate-300 bg-white text-xs rounded">
+                <option value="Cent">Cent (48.4 Sq.Yds)</option>
+                <option value="Ankanam">Ankanam (8.0 Sq.Yds)</option>
+                <option value="Acre">Acre (4,840 Sq.Yds)</option>
+                <option value="Gunta">Gunta (121 Sq.Yds)</option>
+                <option value="Ground">Ground (266.2 Sq.Yds)</option>
+                <option value="Sq.Yds">Square Yards (Gajam)</option>
+              </select>
+            </div>
+          </div>
+
+          <button onclick="calculateDirectArea()" class="w-full py-2 bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs uppercase tracking-wider rounded transition">
+            Convert Units
+          </button>
+
+          <div id="toolAreaGrid" class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center text-xs">
+            <div class="p-2 bg-slate-50 border border-slate-200 rounded">
+              <span class="text-[10px] text-slate-400 block uppercase">Sq. Yards</span>
+              <span id="gridSqYds" class="font-bold text-slate-900 num">484.00</span>
+            </div>
+            <div class="p-2 bg-slate-50 border border-slate-200 rounded">
+              <span class="text-[10px] text-slate-400 block uppercase">Acres</span>
+              <span id="gridAcres" class="font-bold text-slate-900 num">0.1000</span>
+            </div>
+            <div class="p-2 bg-slate-50 border border-slate-200 rounded">
+              <span class="text-[10px] text-slate-400 block uppercase">Cents</span>
+              <span id="gridCents" class="font-bold text-slate-900 num">10.00</span>
+            </div>
+            <div class="p-2 bg-slate-50 border border-slate-200 rounded">
+              <span class="text-[10px] text-slate-400 block uppercase">Ankanams</span>
+              <span id="gridAnkanams" class="font-bold text-slate-900 num">60.50</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tool 4: Section 22-A Prohibited Properties Checker -->
+        <div class="bg-white border border-slate-200 p-4 space-y-3 rounded-lg shadow-xs">
+          <div class="flex items-center justify-between pb-2 border-b border-slate-200">
+            <h4 class="text-xs font-bold text-slate-900 uppercase tracking-wide">
+              Section 22-A Prohibited Land Search
+            </h4>
+            <span class="text-[11px] text-slate-400">Act 19/2007</span>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3 text-xs">
+            <div class="col-span-2 sm:col-span-1">
+              <label class="block text-[11px] font-semibold text-slate-600 mb-1">Survey Number</label>
+              <input type="text" id="toolProhibSurvey" value="" placeholder="Enter survey number" class="w-full p-2 border border-slate-300 bg-white text-xs rounded num" />
+            </div>
+            <div class="col-span-2 sm:col-span-1">
+              <label class="block text-[11px] font-semibold text-slate-600 mb-1">Village / Mandal</label>
+              <input type="text" id="toolProhibVillage" value="" placeholder="Village / mandal" class="w-full p-2 border border-slate-300 bg-white text-xs rounded uppercase" />
+            </div>
+          </div>
+
+          <button onclick="checkDirectProhibitedLand()" class="w-full py-2 bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs uppercase tracking-wider rounded transition">
+            Verify 22-A Prohibitions
+          </button>
+
+          <div id="toolProhibResult" class="hidden p-3 border text-xs space-y-1.5 rounded">
+            <div class="flex justify-between items-center font-bold">
+              <span id="toolProhibStatusBadge" class="text-xs"></span>
+              <span id="toolProhibCategory" class="text-[10px] text-slate-500"></span>
+            </div>
+            <p id="toolProhibDirective" class="text-[11px] text-slate-700 leading-relaxed"></p>
+            <div id="toolProhibCitation" class="text-[10px] text-slate-500 italic pt-1 border-t border-slate-200"></div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </aside>
+
+  <!-- ============================================================== -->
+  <!-- JAVASCRIPT LOGIC & REACTIVE BINDING -->
+  <!-- ============================================================== -->
+  <script>
+    let allDeeds = [];
+    let isDrawerOpen = false;
+
+    function openBillDrawer(tabId = 'slip') { openInspector(tabId); }
+    function closeBillDrawer() { isDrawerOpen = false; document.getElementById('billDrawer').classList.remove('is-mobile-open'); }
+    function toggleBillDrawer() { toggleInspector(); }
+    function openDrawerTab(tabId) { openInspector(tabId); }
+
+    function openInspector(tabId = 'slip') {
+      switchRightTab(tabId);
+      isDrawerOpen = true;
+      document.getElementById('billDrawer').classList.add('is-mobile-open');
+    }
+
+    function toggleInspector() {
+      isDrawerOpen = !isDrawerOpen;
+      document.getElementById('billDrawer').classList.toggle('is-mobile-open', isDrawerOpen);
+    }
+
+    function focusChat() {
+      document.getElementById('chatInput').focus();
+      document.querySelectorAll('.workspace-nav .nav-action').forEach(button => button.classList.remove('active'));
+      document.querySelector('.workspace-nav .nav-action').classList.add('active');
+    }
+
+    // Keyboard shortcut to close drawer on Esc
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && isDrawerOpen) {
+        closeBillDrawer();
+      }
+    });
+
+    // Right Tab Switcher
+    function switchRightTab(tabId) {
+      ['slip', 'legal', 'tools'].forEach(t => {
+        const pane = document.getElementById('rightTab-' + t);
+        const btn = document.getElementById('rightTabBtn-' + t);
+        if (t === tabId) {
+          pane.classList.remove('hidden');
+          btn.className = 'h-full border-b-2 border-slate-900 font-bold text-slate-900 flex items-center space-x-1.5 transition';
+        } else {
+          pane.classList.add('hidden');
+          btn.className = 'h-full border-b-2 border-transparent text-slate-500 hover:text-slate-900 font-medium flex items-center space-x-1.5 transition';
+        }
+      });
+    }
+
+    // Load All 111 Deed Codes
+    async function loadDeeds() {
+      try {
+        const res = await fetch('/api/deeds');
+        const data = await res.json();
+        allDeeds = data.instruments || [];
+        
+        const sel = document.getElementById('directDeedSelect');
+        sel.innerHTML = '';
+        allDeeds.forEach(d => {
+          const opt = document.createElement('option');
+          opt.value = d.instrument_code;
+          opt.textContent = `${d.instrument_code} — ${d.description || d.instrument_code}`;
+          sel.appendChild(opt);
+        });
+      } catch (err) {
+        console.error('Failed to load deeds:', err);
+      }
+    }
+
+    function sendQuickPrompt(promptText) {
+      document.getElementById('chatInput').value = promptText;
+      handleChatSubmit(new Event('submit'));
+    }
+
+    function clearChat() {
+      const chatContainer = document.getElementById('chatMessages');
+      const intro = chatContainer.firstElementChild;
+      if (intro) chatContainer.replaceChildren(intro.cloneNode(true));
+      document.getElementById('chatInput').focus();
+    }
+
+    // Chat Submission Handler
+    async function handleChatSubmit(e) {
+      if (e) e.preventDefault();
+      const input = document.getElementById('chatInput');
+      const text = input.value.trim();
+      if (!text) return;
+
+      appendUserMessage(text);
+      input.value = '';
+
+      const thinking = document.getElementById('thinkingIndicator');
+      thinking.classList.remove('hidden');
+
+      try {
+        const res = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: text })
+        });
+        const data = await res.json();
+        
+        thinking.classList.add('hidden');
+        appendAssistantMessage(data.reply, data.card_slip);
+        handleReactiveRightPane(data);
+
+      } catch (err) {
+        thinking.classList.add('hidden');
+        appendAssistantMessage('Communication error with CARD Engine backend (' + err.message + ').', null);
+      }
+    }
+
+    // Append User Bubble
+    function appendUserMessage(text) {
+      const container = document.getElementById('chatMessages');
+      const div = document.createElement('div');
+      div.className = 'flex justify-end';
+      div.innerHTML = `
+        <div class="max-w-[80%] bg-slate-900 text-white px-4 py-2.5 rounded-2xl rounded-tr-sm text-xs sm:text-[13px] shadow-xs">
+          <p class="leading-relaxed font-normal">${escapeHtml(text)}</p>
+          <span class="block text-[9px] text-slate-400 text-right mt-1 num">${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+        </div>
+      `;
+      container.appendChild(div);
+      container.scrollTop = container.scrollHeight;
+    }
+
+    // Append Assistant Bubble (Zerodha / Uber Fintech Standard)
+    function appendAssistantMessage(markdownText, cardSlip = null) {
+      const container = document.getElementById('chatMessages');
+      const div = document.createElement('div');
+      div.className = 'flex items-start space-x-2.5';
+      
+      const parsedHtml = marked.parse(markdownText || '');
+
+      div.innerHTML = `
+        <div class="w-7 h-7 rounded-md bg-slate-900 text-white flex items-center justify-center text-xs flex-shrink-0 mt-0.5">
+          <i class="fa-solid fa-landmark text-[10px]"></i>
+        </div>
+        <div class="flex-1 bg-white border border-slate-200/90 rounded-2xl rounded-tl-sm p-4 sm:p-5 text-xs text-slate-800 space-y-2 shadow-xs">
+          <div class="flex items-center justify-between pb-2 border-b border-slate-100">
+            <span class="font-bold text-slate-900 text-[10px] tracking-wider uppercase">
+              Local source assistant
+            </span>
+            <span class="text-[10px] text-slate-400 font-medium num">${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+          </div>
+          <div class="prose-chat text-xs leading-relaxed text-slate-800">
+            ${parsedHtml}
+          </div>
+        </div>
+      `;
+      container.appendChild(div);
+      container.scrollTop = container.scrollHeight;
+    }
+
+    // Reactive State Dispatcher for Right Pane
+    function handleReactiveRightPane(data) {
+      if (data.card_slip) {
+        renderCardCheckSlip(data.card_slip, data.audit_comparison);
+        
+        // Update top-bar total badge if present
+        const badge = document.getElementById('headerTotalBadge');
+        if (badge) {
+          badge.textContent = '₹ ' + Number(data.card_slip.total_payable).toLocaleString('en-IN');
+          badge.classList.remove('hidden');
+        }
+      }
+
+      if (data.legal_docs && data.legal_docs.length > 0) {
+        renderLegalResults(data.legal_docs);
+      }
+
+      if (data.area_data) {
+        renderAreaConversionGrid(data.area_data);
+      }
+    }
+
+    // Render Data into CARD Check-Slip
+    function renderCardCheckSlip(slip, auditComparison) {
+      document.getElementById('slipDocCode').textContent = `${slip.instrument_code} — Verified Instrument`;
+      document.getElementById('slipArea').textContent = slip.area_type;
+      document.getElementById('slipDate').textContent = slip.execution_date;
+      document.getElementById('slipChargeable').textContent = '₹ ' + Number(slip.chargeable_value).toLocaleString('en-IN');
+
+      document.getElementById('slipSDRate').textContent = slip.stamp_duty_rate;
+      document.getElementById('slipSDAmount').textContent = '₹ ' + Number(slip.stamp_duty).toLocaleString('en-IN');
+
+      document.getElementById('slipTDRate').textContent = slip.transfer_duty_rate || '0.0%';
+      document.getElementById('slipTDAmount').textContent = '₹ ' + Number(slip.transfer_duty).toLocaleString('en-IN');
+
+      document.getElementById('slipRFRate').textContent = slip.reg_fee_rate;
+      document.getElementById('slipRFAmount').textContent = '₹ ' + Number(slip.registration_fee).toLocaleString('en-IN');
+
+      document.getElementById('slipUCAmount').textContent = '₹ ' + Number(slip.user_charge).toLocaleString('en-IN');
+      document.getElementById('slipTotalAmount').textContent = '₹ ' + Number(slip.total_payable).toLocaleString('en-IN');
+
+      // Citations
+      const citeDiv = document.getElementById('slipCitations');
+      if (slip.citations && slip.citations.length > 0) {
+        citeDiv.textContent = 'Authority: ' + slip.citations.join('; ');
+      } else {
+        citeDiv.textContent = 'Authority: AP Registration & Stamp Rules';
+      }
+
+      if (slip.reference_no) {
+        const refEl = document.getElementById('slipRefNo');
+        if (refEl) refEl.textContent = slip.reference_no;
+      }
+
+      const auditBox = document.getElementById('slipAuditBox');
+      if (auditComparison) {
+        auditBox.classList.remove('hidden');
+        const h = auditComparison.historical;
+        const c = auditComparison.current;
+        const delta = Number(auditComparison.delta_total);
+
+        document.getElementById('slipAuditOldTotal').textContent = '₹ ' + Number(h.total_payable).toLocaleString('en-IN');
+        document.getElementById('slipAuditCurTotal').textContent = '₹ ' + Number(c.total_payable).toLocaleString('en-IN');
+        
+        const deltaFormatted = (delta >= 0 ? '+ ₹ ' : '- ₹ ') + Math.abs(delta).toLocaleString('en-IN');
+        document.getElementById('slipAuditDeltaBadge').textContent = deltaFormatted;
+
+        if (delta > 0) {
+          document.getElementById('slipAuditNote').textContent = `Deficit of ₹ ${delta.toLocaleString('en-IN')} recoverable under Section 41-A of Indian Stamp Act.`;
+        } else {
+          document.getElementById('slipAuditNote').textContent = `Historical duty was higher than current. Full proper duty paid at time of execution.`;
+        }
+      } else {
+        auditBox.classList.add('hidden');
+      }
+    }
+
+    // Render Legal Results in Tab 2
+    function renderLegalResults(items) {
+      const container = document.getElementById('rightLegalResults');
+      if (!items || items.length === 0) {
+        container.innerHTML = '<div class="text-xs text-slate-500 bg-white border border-slate-200 p-3 rounded">No statutory matches found.</div>';
+        return;
+      }
+
+      container.innerHTML = '';
+      items.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'p-4 bg-white border border-slate-200 rounded-lg space-y-2 shadow-xs';
+        card.innerHTML = `
+          <div class="flex flex-wrap justify-between items-center gap-1.5 pb-1 border-b border-slate-100">
+            <span class="px-2 py-0.5 bg-slate-900 text-white text-xs font-bold rounded">${item.section_or_rule}</span>
+            <span class="text-xs font-bold text-slate-900">${item.title}</span>
+            <span class="text-[10px] text-slate-400 font-medium">${item.act_name}</span>
+          </div>
+          <div class="border-l-3 border-slate-900 pl-2.5 py-1 text-xs text-slate-800 font-medium bg-slate-50 rounded-r">
+            ${item.sro_guidance}
+          </div>
+          <div class="text-xs text-slate-700 leading-relaxed bg-slate-50 p-3 border border-slate-200 rounded-md max-h-48 overflow-y-auto whitespace-pre-line">
+            ${item.content}
+          </div>
+          <div class="text-[11px] text-slate-400">
+            Citation: <span class="text-slate-600 font-medium">${item.authority_citation}</span>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    // Execute Legal Search from Right Tab
+    async function executeLegalSearch() {
+      const q = document.getElementById('rightLegalInput').value.trim();
+      if (!q) return;
+
+      const container = document.getElementById('rightLegalResults');
+      container.innerHTML = '<div class="text-xs text-slate-500 py-3 flex items-center gap-2"><i class="fa-solid fa-circle-notch fa-spin"></i> Searching legal databases...</div>';
+
+      try {
+        const res = await fetch('/api/legal-search?q=' + encodeURIComponent(q));
+        const items = await res.json();
+        renderLegalResults(items);
+      } catch (err) {
+        container.innerHTML = '<div class="text-xs text-red-600 p-3">Search error: ' + err.message + '</div>';
+      }
+    }
+
+    function searchQuickSection(sec) {
+      document.getElementById('rightLegalInput').value = sec;
+      executeLegalSearch();
+    }
+
+    function onDirectDeedChanged() {
+      const deed = document.getElementById('directDeedSelect').value;
+      const isPartition = deed.startsWith('04');
+      const isMortgageOrDOTD = deed.startsWith('02');
+
+      document.getElementById('directVSSGroup').className = isPartition ? 'block sm:col-span-2' : 'hidden';
+      document.getElementById('directLoanGroup').className = isMortgageOrDOTD ? 'block' : 'hidden';
+    }
+
+    async function calculateDirectDeed() {
+      const deed = document.getElementById('directDeedSelect').value || '01_01';
+      const area = document.getElementById('directAreaSelect').value;
+      const date = document.getElementById('directDateInput').value;
+      const consid = document.getElementById('directConsidInput').value || '0';
+      const mv = document.getElementById('directMVInput').value || '0';
+      const loan = document.getElementById('directLoanInput').value || '0';
+
+      const payload = {
+        instrument_code: deed,
+        area_type: area,
+        execution_date: date,
+        consideration_value: consid,
+        market_value: mv,
+        loan_amount: loan
+      };
+
+      try {
+        const res = await fetch('/api/calculate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        
+        renderCardCheckSlip(data, null);
+        switchRightTab('slip');
+        
+        appendAssistantMessage(
+          `### 📋 Duty & Fee Calculated\n\n` +
+          `• **Instrument:** \`${deed}\` | **Jurisdiction:** \`${area}\` | **Date:** \`${date}\`\n` +
+          `• **Total Payable:** **₹ ${Number(data.total_payable).toLocaleString('en-IN')}**\n` +
+          `*(The official check-slip has been updated in the slide drawer).*`,
+          data
+        );
+      } catch (err) {
+        alert('Calculation error: ' + err.message);
+      }
+    }
+
+    async function calculateDirectStructure() {
+      const cat = document.getElementById('toolStructCategory').value;
+      const tier = document.getElementById('toolStructTier').value;
+      const plinth = parseFloat(document.getElementById('toolStructPlinth').value) || 0;
+      const age = parseInt(document.getElementById('toolStructAge').value) || 0;
+
+      const payload = {
+        structure_category: cat,
+        area_tier: tier,
+        plinth_area_sqft: plinth,
+        age_years: age,
+        floor_number: 0,
+        completion_stage: "COMPLETED",
+        execution_date: "2025-05-01"
+      };
+
+      try {
+        const res = await fetch('/api/structure-value', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+
+        const box = document.getElementById('toolStructResult');
+        box.classList.remove('hidden');
+        document.getElementById('toolStructNet').textContent = '₹ ' + Number(data.net_building_value).toLocaleString('en-IN');
+        document.getElementById('toolStructBase').textContent = '₹ ' + Number(data.base_rate_per_sqft).toLocaleString('en-IN');
+        document.getElementById('toolStructGross').textContent = '₹ ' + Number(data.gross_value).toLocaleString('en-IN');
+        document.getElementById('toolStructDep').textContent = data.depreciation_pct + '%';
+      } catch (err) {
+        alert('Structure error: ' + err.message);
+      }
+    }
+
+    async function calculateDirectArea() {
+      const val = document.getElementById('toolAreaValue').value || 0;
+      const unit = document.getElementById('toolAreaUnit').value;
+
+      try {
+        const res = await fetch('/api/convert-area', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ value: val, from_unit: unit })
+        });
+        const data = await res.json();
+        renderAreaConversionGrid(data);
+      } catch (err) {
+        console.error('Area error:', err);
+      }
+    }
+
+    function renderAreaConversionGrid(data) {
+      document.getElementById('gridSqYds').textContent = Number(data.sq_yards).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      document.getElementById('gridAcres').textContent = Number(data.acres).toLocaleString('en-IN', { minimumFractionDigits: 4, maximumFractionDigits: 4 });
+      document.getElementById('gridCents').textContent = Number(data.cents).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      document.getElementById('gridAnkanams').textContent = Number(data.ankanams).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    async function checkDirectProhibitedLand() {
+      const sy = document.getElementById('toolProhibSurvey').value.trim();
+      const vil = document.getElementById('toolProhibVillage').value.trim();
+      if (!sy) {
+        alert('Please enter a survey number');
+        return;
+      }
+
+      try {
+        const res = await fetch('/api/check-prohibited', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ survey_number: sy, village: vil })
+        });
+        const data = await res.json();
+
+        const box = document.getElementById('toolProhibResult');
+        box.classList.remove('hidden');
+
+        const badge = document.getElementById('toolProhibStatusBadge');
+        if (data.is_prohibited) {
+          box.className = 'p-3 border border-red-300 bg-red-50 text-xs space-y-1.5 rounded';
+          badge.className = 'text-red-700 font-bold';
+          badge.textContent = 'MANDATORY REFUSAL (Section 22-A)';
+          document.getElementById('toolProhibCategory').textContent = data.category || '22-A';
+          document.getElementById('toolProhibDirective').textContent = data.statutory_directive;
+          document.getElementById('toolProhibCitation').textContent = data.legal_citation;
+        } else {
+          box.className = 'p-3 border border-emerald-300 bg-emerald-50 text-xs space-y-1.5 rounded';
+          badge.className = 'text-emerald-700 font-bold';
+          badge.textContent = 'NO MATCH IN LOCAL DEMO DATA';
+          document.getElementById('toolProhibCategory').textContent = 'No matching local row';
+          document.getElementById('toolProhibDirective').textContent = data.statutory_directive;
+          document.getElementById('toolProhibCitation').textContent = data.legal_citation;
+        }
+      } catch (err) {
+        alert('Verification error: ' + err.message);
+      }
+    }
+
+    function escapeHtml(string) {
+      const entityMap = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+      };
+      return String(string).replace(/[&<>"']/g, function (s) {
+        return entityMap[s];
+      });
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      loadDeeds();
+      calculateDirectArea();
+    });
+  </script>
+</body>
+</html>
